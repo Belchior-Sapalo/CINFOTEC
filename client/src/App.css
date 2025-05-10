@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+.auth-input-container {
+  @apply flex gap-2 bg-gray-200 px-3 py-2 w-full;
+}
+
+.auth-input {
+    @apply border-l border-l-gray-600 pl-2 outline-none w-full
+}
+
+.auth-icon-container {
+  @apply flex items-center justify-center p-1 rounded-l;
+}
+
+.auth-icon {
+    @apply text-gray-600
+}
+
+.auth-change-btn {
+    @apply font-bold px-2 py-1 hover:bg-sky-800 hover:text-white cursor-pointer transition-all
+}

@@ -1,0 +1,26 @@
+# Ignorar node_modules nas duas pastas
+api/node_modules/
+client/node_modules/
+
+# Ignorar arquivos de build
+api/dist/
+client/dist/
+client/build/
+
+# Ignorar arquivos de log
+*.log
+
+# Ignorar variáveis de ambiente
+api/.env
+client/.env
+.env
+
+# Ignorar cache do sistema ou IDEs
+.DS_Store
+Thumbs.db
+
+# Ignorar arquivos do VS Code
+.vscode/
+
+# Ignorar pastas do sistema
+.i
