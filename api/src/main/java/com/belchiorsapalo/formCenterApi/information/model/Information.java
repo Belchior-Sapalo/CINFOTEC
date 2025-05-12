@@ -29,8 +29,8 @@ import lombok.Setter;
 public class Information implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    public Information(String title, String category, String information) {
-        this.information = information;
+    public Information(String title, String category, String body) {
+        this.body = body;
         this.title = title;
         this.category = category;
     }
@@ -52,7 +52,7 @@ public class Information implements Serializable {
     private String category;
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String information;
+    private String body;
 
     @OneToOne(mappedBy = "information", cascade = CascadeType.ALL)
     private File image;

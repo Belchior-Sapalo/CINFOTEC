@@ -24,7 +24,7 @@ import com.belchiorsapalo.formCenterApi.information.dtos.InfoRegisterDTO;
 import com.belchiorsapalo.formCenterApi.information.model.Information;
 import com.belchiorsapalo.formCenterApi.information.service.InformationService;
 
-@CrossOrigin(origins = "http://localhost:5173/")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/informations")
 public class InformationController {
@@ -58,10 +58,10 @@ public class InformationController {
     public ResponseEntity<Information> register(
         @RequestParam("title") String title,
         @RequestParam("category") String category,
-        @RequestParam("information") String information,
+        @RequestParam("body") String body,
         @RequestParam("image") MultipartFile image
     ) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(informationService.register(title, category, information, image));
+            return ResponseEntity.status(HttpStatus.CREATED).body(informationService.register(title, category, body, image));
     }
 
     //Testado, sucesso

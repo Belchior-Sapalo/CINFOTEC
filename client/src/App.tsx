@@ -1,11 +1,14 @@
 import { Outlet } from 'react-router'
 import './App.css'
-import { MobileNavBar } from './components/Navbar'
+import NavBar from './components/NavBar'
+import Footer from './components/Footer'
 
 function App() {
   return (
     <div>
+      <NavBar/>
       <Outlet/>
+      <Footer/>
     </div>
   )
 }

@@ -4,30 +4,19 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+import com.belchiorsapalo.formCenterApi.user.dtos.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
-import com.belchiorsapalo.formCenterApi.user.dtos.UserLoginDTO;
-import com.belchiorsapalo.formCenterApi.user.dtos.UserLoginResponseDTO;
-import com.belchiorsapalo.formCenterApi.user.dtos.UserProfileDTO;
-import com.belchiorsapalo.formCenterApi.user.dtos.UserRegisterDTO;
-import com.belchiorsapalo.formCenterApi.user.dtos.UserUpdateDTO;
 import com.belchiorsapalo.formCenterApi.user.model.User;
 import com.belchiorsapalo.formCenterApi.user.service.UserService;
 
 import jakarta.validation.Valid;
 
-@CrossOrigin(origins = "http://localhost:5173/")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -66,49 +55,49 @@ public class UserController {
     }
 
     //Testado, sucesso
-    @GetMapping("/profile/{id}")
-    public ResponseEntity<UserProfileDTO> getUserProfile(@PathVariable UUID id){
-        return ResponseEntity.ok().body(userService.getUserProfile(id));
+    @GetMapping("/me")
+    public ResponseEntity<UserProfileDTO> getUserProfile(@AuthenticationPrincipal User user){
+        return ResponseEntity.ok().body(userService.getUserProfile(user.getId()));
     }
 
     //Testado, sucesso
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(@PathVariable UUID id) throws IOException{
         userService.delete(id);
         return ResponseEntity.ok().build();
     }
 
     //Testado, sucesso
-    @PutMapping("/updatePassword/{id}")
-    public ResponseEntity<Object> changePassword(@PathVariable UUID id, @Valid @RequestBody UserUpdateDTO userUpdateDTO){
-        userService.changePassword(id, userUpdateDTO);
+    @PatchMapping("/me/password")
+    public ResponseEntity<Object> changePassword(@AuthenticationPrincipal User user, @Valid @RequestBody UpdatePasswordDTO dto){
+        userService.changePassword(user.getId(), dto);
         return ResponseEntity.ok().build();
     }
 
     //Testado, sucesso
-    @PutMapping("/updateName/{id}")
-    public ResponseEntity<Object> updateName(@PathVariable UUID id, @Valid @RequestBody UserUpdateDTO userUpdateDTO){
-        userService.updateName(id, userUpdateDTO);
+    @PatchMapping("/me/name")
+    public ResponseEntity<Object> updateName(@AuthenticationPrincipal User user, @Valid @RequestBody UpdateNameDTO dto){
+        userService.updateName(user.getId(), dto);
         return ResponseEntity.ok().build();
     }
 
     //Testado, sucesso
-    @PutMapping("/updateEmail/{id}")
-    public ResponseEntity<UserLoginResponseDTO> updateEmail(@PathVariable UUID id, @Valid @RequestBody UserUpdateDTO userUpdateDTO){
-        return ResponseEntity.ok().body(userService.updateEmail(id, userUpdateDTO, authenticationManager));
+    @PatchMapping("/me/email")
+    public ResponseEntity<UserLoginResponseDTO> updateEmail(@AuthenticationPrincipal User user, @Valid @RequestBody UpdateEmailDTO dto){
+        return ResponseEntity.ok().body(userService.updateEmail(user.getId(), dto, authenticationManager));
     }
 
     //Testado, sucesso
-    @PutMapping("/updateBi/{id}")
-    public ResponseEntity<Object> updateBi(@PathVariable UUID id, @Valid @RequestBody UserUpdateDTO userUpdateDTO){
-        userService.updateBi(id, userUpdateDTO);
+    @PatchMapping("/me/bi")
+    public ResponseEntity<Object> updateBi(@AuthenticationPrincipal User user, @Valid @RequestBody UpdateBiDTO dto){
+        userService.updateBi(user.getId(), dto);
         return ResponseEntity.ok().build();
     }
 
     //Testado, sucesso
-    @PutMapping("/updatePhone/{id}")
-    public ResponseEntity<Object> updatePhone(@PathVariable UUID id, @Valid @RequestBody UserUpdateDTO userUpdateDTO){
-        userService.updatePhone(id, userUpdateDTO);
+    @PatchMapping("/me/phone")
+    public ResponseEntity<Object> updatePhone(@AuthenticationPrincipal User user, @Valid @RequestBody UpdatePhoneDTO dto){
+        userService.updatePhone(user.getId(), dto);
         return ResponseEntity.ok().build();
     }
 }

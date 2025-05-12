@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+import com.belchiorsapalo.formCenterApi.user.dtos.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,11 +20,6 @@ import com.belchiorsapalo.formCenterApi.exceptions.ResourceNotFoundException;
 import com.belchiorsapalo.formCenterApi.exceptions.UnauthorizedUserException;
 import com.belchiorsapalo.formCenterApi.files.service.FileService;
 import com.belchiorsapalo.formCenterApi.infra.TokenService;
-import com.belchiorsapalo.formCenterApi.user.dtos.UserLoginDTO;
-import com.belchiorsapalo.formCenterApi.user.dtos.UserLoginResponseDTO;
-import com.belchiorsapalo.formCenterApi.user.dtos.UserProfileDTO;
-import com.belchiorsapalo.formCenterApi.user.dtos.UserRegisterDTO;
-import com.belchiorsapalo.formCenterApi.user.dtos.UserUpdateDTO;
 import com.belchiorsapalo.formCenterApi.user.model.User;
 import com.belchiorsapalo.formCenterApi.user.model.UserRole;
 import com.belchiorsapalo.formCenterApi.user.repository.UserRepository;
@@ -103,11 +99,11 @@ public class UserService implements UserDetailsService {
         });
     }
 
-    public void changePassword(UUID id, UserUpdateDTO userUpdateDTO) {
+    public void changePassword(UUID id, UpdatePasswordDTO dto) {
         var userToUpdate = userRepository.findById(id)
                 .orElseThrow(() -> new AnotherApiException("Ocorreu um erro ao atualizar senha"));
-        var currentPassword = userUpdateDTO.password();
-        var newPassword = userUpdateDTO.newPassword();
+        var currentPassword = dto.password();
+        var newPassword = dto.newPassword();
 
         BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
         boolean isPasswordCorrect = bcrypt.matches(currentPassword, userToUpdate.getPassword());
@@ -122,55 +118,55 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public void updateName(UUID id, UserUpdateDTO userUpdateDTO) {
+    public void updateName(UUID id, UpdateNameDTO dto) {
         var userToUpdate = userRepository.findById(id)
                 .orElseThrow(() -> new AnotherApiException("Ocorreu um erro ao atualizar nome"));
         var currentName = userToUpdate.getName();
-        var newName = userUpdateDTO.name();
+        var newName = dto.name();
         if (!currentName.equals(newName)) {
             userToUpdate.setName(newName);
             userRepository.save(userToUpdate);
         }
     }
 
-    public UserLoginResponseDTO updateEmail(UUID id, UserUpdateDTO userUpdateDTO,
+    public UserLoginResponseDTO updateEmail(UUID id, UpdateEmailDTO dto,
             AuthenticationManager authenticationManager) {
-        if (userRepository.existsByEmail(userUpdateDTO.email())) throw new ResourceAlreadyExistsException("Este email já existe, tente outro");
+        if (userRepository.existsByEmail(dto.email())) throw new ResourceAlreadyExistsException("Este email já existe, tente outro");
 
         var userToUpdate = userRepository.findById(id)
                 .orElseThrow(() -> new AnotherApiException("Ocorreu um erro ao atualizar email"));
-        var newEmail = userUpdateDTO.email();
+        var newEmail = dto.email();
         BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
-        boolean isPasswordCorrect = bcrypt.matches(userUpdateDTO.password(), userToUpdate.getPassword());
+        boolean isPasswordCorrect = bcrypt.matches(dto.password(), userToUpdate.getPassword());
         if (!isPasswordCorrect)
             throw new UnauthorizedUserException("Senha incorreta, não pode continuar!");
         userToUpdate.setEmail(newEmail);
         userRepository.save(userToUpdate);
-        return login(new UserLoginDTO(userToUpdate.getEmail(), userUpdateDTO.password()), authenticationManager);
+        return login(new UserLoginDTO(userToUpdate.getEmail(), dto.password()), authenticationManager);
     }
 
-    public void updateBi(UUID id, UserUpdateDTO userUpdateDTO) {
+    public void updateBi(UUID id, UpdateBiDTO dto) {
         var userToUpdate = userRepository.findById(id)
                 .orElseThrow(() -> new AnotherApiException("Ocorreu um erro ao atualizar BI"));
-         User verifyUserByBi = userRepository.findUserByBi(userUpdateDTO.bi());
+         User verifyUserByBi = userRepository.findUserByBi(dto.bi());
         if (verifyUserByBi != null)
             throw new ResourceAlreadyExistsException("Este BI já existe, tente outro");
         var currentBi = userToUpdate.getBi();
-        var newBi = userUpdateDTO.bi();
+        var newBi = dto.bi();
         if (!currentBi.equals(newBi)) {
             userToUpdate.setBi(newBi);
             userRepository.save(userToUpdate);
         }
     }
 
-    public void updatePhone(UUID id, UserUpdateDTO userUpdateDTO) {
+    public void updatePhone(UUID id, UpdatePhoneDTO dto) {
         var userToUpdate = userRepository.findById(id)
                 .orElseThrow(() -> new AnotherApiException("Ocorreu um erro ao atualizar telefone"));
-        User verifyPhoneNumber = userRepository.findUserByPhoneNumber(userUpdateDTO.phoneNumber());
+        User verifyPhoneNumber = userRepository.findUserByPhoneNumber(dto.phoneNumber());
         if (verifyPhoneNumber != null)
             throw new ResourceAlreadyExistsException("Este número de telefone já existe, tente outro");
         var currentPhone = userToUpdate.getPhoneNumber();
-        var newPhone = userUpdateDTO.phoneNumber();
+        var newPhone = dto.phoneNumber();
         if (!currentPhone.equals(newPhone)) {
             userToUpdate.setPhoneNumber(newPhone);
             userRepository.save(userToUpdate);

@@ -19,7 +19,7 @@ import com.belchiorsapalo.formCenterApi.course.dtos.CourseRegisterDTO;
 import com.belchiorsapalo.formCenterApi.course.model.Course;
 import com.belchiorsapalo.formCenterApi.course.service.CourseService;
 
-@CrossOrigin(origins = "http://localhost:5173/")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/courses")
 public class CourseController {

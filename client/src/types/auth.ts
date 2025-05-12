@@ -1,6 +1,6 @@
 export const Role = {
     PUBLIC: "PUBLIC",
-    USER: "USER",
+    STUDENT: "STUDENT",
     ADMIN: "ADMIN",
   } as const;
   
@@ -17,4 +17,26 @@ export interface IRegister {
   bi: string,
   phoneNumber: string,
   password: string,
+}
+
+export interface IUser {
+  id: number;
+  name?: string,
+  email?: string,
+  bi?: string,
+  phoneNumber?: string,
+  token?: string | null
+  role?: Role;
+  isAdmin?: boolean;
+}
+
+export interface IAuthState {
+  user: IUser | null;
+  isAuthenticated: boolean;
+}
+
+export interface IAuthContext {
+  state: IAuthState;
+  login: (user: IUser) => void;
+  logout: () => void;
 }

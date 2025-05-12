@@ -32,11 +32,11 @@ public class InformationService {
     }
 
     @Transactional
-    public Information register(String title, String category, String infoText, MultipartFile atachImg) {
+    public Information register(String title, String category, String body, MultipartFile atachImg) {
         File savedFile;
         if (informationRepository.existsByTitle(title)) throw new ResourceAlreadyExistsException("Já existe uma informação com esse título");
 
-        Information createdInfo = new Information(title, category, infoText);
+        Information createdInfo = new Information(title, category, body);
         try {
             savedFile = fileService.upload(atachImg, "atachment", createdInfo);
         } catch (IOException e) {
@@ -57,8 +57,8 @@ public class InformationService {
             infoToUpdate.setTitle(infoRegisterDTO.title());
         if (!infoRegisterDTO.category().equalsIgnoreCase(infoToUpdate.getCategory()))
             infoToUpdate.setCategory(infoRegisterDTO.category());
-        if (!infoRegisterDTO.information().equalsIgnoreCase(infoToUpdate.getInformation()))
-            infoToUpdate.setInformation(infoRegisterDTO.information());
+        if (!infoRegisterDTO.body().equalsIgnoreCase(infoToUpdate.getBody()))
+            infoToUpdate.setBody(infoRegisterDTO.body());
         informationRepository.save(infoToUpdate);
     }
 

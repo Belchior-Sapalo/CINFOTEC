@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { handleLogin, handleRegister } from "../api/authServices";
-import type { ILogin, IRegister } from "../types/auth";
+import { type ILogin, type IRegister } from "../types/auth";
 import {
   FaEye,
   FaEyeSlash,
@@ -11,8 +11,11 @@ import {
   FaUserPlus,
 } from "react-icons/fa";
 import { MdMail, MdPassword } from "react-icons/md";
-import { Link } from "react-router";
-import { Tooltip } from "react-tooltip";
+import { Link, useNavigate } from "react-router";
+import { SubmitButton } from "../components/Buttons";
+import { TooltipContent, TooltipProvider } from "@radix-ui/react-tooltip";
+import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Auth() {
   const [logging, setLogging] = useState<boolean>(true);
@@ -29,7 +32,10 @@ export default function Auth() {
     email: "",
     password: "",
   });
+
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const {state, login} = useAuth();
+  const navigate = useNavigate()
 
   const handleChangeForm = () => {
     setLogging((prev) => !prev);
@@ -59,6 +65,9 @@ export default function Auth() {
       handleLogin(loginBody!)
         .then((res) => {
           console.log(res.data);
+          login({...res.data, isAdmin: res.data.role === "ADMIN"});
+          handleResetForm()
+          navigate("/", {replace: true})
         })
         .catch((err) => {
           console.log(err.response);
@@ -79,7 +88,8 @@ export default function Auth() {
     } else {
       handleRegister(registerBody!)
         .then((res) => {
-          console.log(res);
+          handleChangeForm()
+          handleResetForm()
         })
         .catch((err) => {
           if (err.response && err.response.data) {
@@ -96,9 +106,9 @@ export default function Auth() {
   }
 
   return (
-    <div className="h-screen flex flex-col items-center sm:justify-center bg-sky-900 p-4">
-      <div className=" bg-gray-50 p-8 w-full md:w-[40%] rounded">
-        <div className="flex items-center">
+    <div className="min-h-screen flex flex-col items-center md:justify-center bg-sky-900 p-4">
+      <div className="bg-gray-50 p-8 w-full sm:w-[70%] md:w-[60%] lg:w-[40%] rounded">
+        <div className="flex items-center mb-4">
           <button
             onClick={handleChangeForm}
             className={`${
@@ -250,33 +260,29 @@ export default function Auth() {
             </p>
           )}
           <div className="flex gap-2">
-            <button
-              disabled={loading}
-              type="submit"
-              className="bg-sky-800 hover:bg-sky-900 transition-all text-white font-bold py-2 px-4 rounded cursor-pointer"
-            >
-              {logging
-                ? loading
-                  ? "Aguarde..."
-                  : "Entrar"
-                : loading
-                ? "Aguarde..."
-                : "Criar conta"}
-            </button>
+            <SubmitButton
+              label={logging ? "Entrar" : "Criar conta"}
+              actionLabel="Aguarde..."
+              loading={loading}
+            />
+
             {!logging && (
               <>
-                <button
-                  data-tooltip-id="reset-form-button"
-                  data-tooltip-content="Restaurar formulário"
-                  data-tooltip-place="top"
-                  type="button"
-                  disabled={loading}
-                  onClick={() => handleResetForm()}
-                  className="bg-sky-800 hover:bg-sky-900 transition-all text-white font-bold py-2 px-4 rounded cursor-pointer"
-                >
-                  <FaTrash />
-                </button>
-                <Tooltip id="reset-form-button"/>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <button
+                        type="button"
+                        disabled={loading}
+                        onClick={() => handleResetForm()}
+                        className="bg-sky-800 hover:bg-sky-900 transition-all text-white font-bold py-2 px-4 rounded cursor-pointer"
+                      >
+                        <FaTrash />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-gray-500 p-2 text-white rounded mb-2">Restaurar formulário</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </>
             )}
           </div>
