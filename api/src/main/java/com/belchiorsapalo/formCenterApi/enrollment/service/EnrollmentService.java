@@ -75,9 +75,8 @@ public class EnrollmentService {
       return enrollmentRepository.findAll();
    }
 
-   public List<Enrollment> getStudentEnrollments(String token){
-      String email = tokenService.validateToken(token);
-      User foundedUser = (User) userRepository.findUserByEmail(email);
+   public List<Enrollment> getStudentEnrollments(UUID id){
+      User foundedUser = userRepository.findById(id).orElseThrow(() -> new AnotherApiException("Usuário não encontrado"));
       return enrollmentRepository.findEnrollmentByStudentId(foundedUser.getId());
    }
 

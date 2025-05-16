@@ -2,6 +2,7 @@ export const Role = {
     PUBLIC: "PUBLIC",
     STUDENT: "STUDENT",
     ADMIN: "ADMIN",
+    SUPER: "SUPER",
   } as const;
   
 export type Role = keyof typeof Role;
@@ -20,7 +21,7 @@ export interface IRegister {
 }
 
 export interface IUser {
-  id: number;
+  id: string;
   name?: string,
   email?: string,
   bi?: string,
@@ -28,6 +29,7 @@ export interface IUser {
   token?: string | null
   role?: Role;
   isAdmin?: boolean;
+  isSuperAdmin?: boolean;
 }
 
 export interface IAuthState {

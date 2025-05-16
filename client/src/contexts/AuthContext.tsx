@@ -1,5 +1,5 @@
 import { useState, type ReactNode, createContext, useContext, useEffect } from "react";
-import { Role, type IAuthContext, type IAuthState, type IUser } from "@/types/auth";
+import { type IAuthContext, type IAuthState, type IUser } from "@/types/auth";
 import { useNavigate } from "react-router";
 
 export const AuthContext = createContext<IAuthContext | undefined>(undefined);

@@ -31,9 +31,14 @@ public class UserController {
     }
 
     //Testado, sucesso
-    @GetMapping
-    public ResponseEntity<List<User>> getAll(){
-        return ResponseEntity.ok().body(userService.getAll());
+    @GetMapping("/students")
+    public ResponseEntity<List<User>> getAllStudents(){
+        return ResponseEntity.ok().body(userService.getAll(true, null));
+    }
+
+    @GetMapping("/admins")
+    public ResponseEntity<List<User>> getAllAdmins(@AuthenticationPrincipal User user){
+        return ResponseEntity.ok().body(userService.getAll(false, user.getBi()));
     }
     
     //Testado, sucesso
@@ -58,13 +63,6 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserProfileDTO> getUserProfile(@AuthenticationPrincipal User user){
         return ResponseEntity.ok().body(userService.getUserProfile(user.getId()));
-    }
-
-    //Testado, sucesso
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Object> delete(@PathVariable UUID id) throws IOException{
-        userService.delete(id);
-        return ResponseEntity.ok().build();
     }
 
     //Testado, sucesso
@@ -98,6 +96,20 @@ public class UserController {
     @PatchMapping("/me/phone")
     public ResponseEntity<Object> updatePhone(@AuthenticationPrincipal User user, @Valid @RequestBody UpdatePhoneDTO dto){
         userService.updatePhone(user.getId(), dto);
+        return ResponseEntity.ok().build();
+    }
+
+    //Testado, sucesso
+    @DeleteMapping("/me")
+    public ResponseEntity<Object> delete(@AuthenticationPrincipal User user) throws IOException{
+        userService.delete(user.getId());
+        return ResponseEntity.ok().build();
+    }
+
+    //Testado, sucesso
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteAdmin(@PathVariable UUID id) throws IOException{
+        userService.delete(id);
         return ResponseEntity.ok().build();
     }
 }

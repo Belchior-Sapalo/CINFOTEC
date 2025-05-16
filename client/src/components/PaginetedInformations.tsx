@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/pagination";
 import type { IInformation } from "@/types/information";
 import { useState } from "react";
-import { InformationCard } from "./Cards";
+import { InformationCard } from "./ui/Cards";
 
 const itemsPerPage = 3;
 

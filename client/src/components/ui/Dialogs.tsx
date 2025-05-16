@@ -1,0 +1,1901 @@
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  FaDownload,
+  FaEye,
+  FaEyeSlash,
+  FaFilePdf,
+  FaIdCard,
+  FaPen,
+  FaPhone,
+  FaPlus,
+  FaTrash,
+  FaUser,
+  FaUserPlus,
+} from "react-icons/fa";
+
+import {
+  handleUpdateName,
+  handleUpdateEmail,
+  handleUpdateBI,
+  handleUpdatePhone,
+  handleUpdatePassword,
+  handleDeleteAccount,
+  handleDeleteAdminAccount,
+} from "@/api/userServices";
+import React, { useState, type ChangeEvent, type ReactNode } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  handleCreateCourse,
+  handleDeleteCourse,
+  handleUpdateCourse,
+} from "@/api/coursesServices";
+import { data, useNavigate } from "react-router";
+import type { ICourse } from "@/types/course";
+import type { IInformation } from "@/types/information";
+import {
+  handleCreateInformation,
+  handleDeleteInformation,
+  handleUpdateInformation,
+} from "@/api/informationsServices";
+import { Input } from "./input";
+import { handleRegisterEnrollment } from "@/api/EnrollServices";
+import type { IStudent } from "@/types/enrollment";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@radix-ui/react-tooltip";
+import { MdMail, MdPassword } from "react-icons/md";
+import { SubmitButton } from "./Buttons";
+import type { IRegister } from "@/types/auth";
+import { handleRegisterAdmin } from "@/api/authServices";
+import FileViewer from "../FileViewer";
+
+interface IDialogProps {
+  onReload: () => void;
+  currentValue?: string;
+}
+
+export function EditNameDialog({ onReload, currentValue }: IDialogProps) {
+  const [name, setName] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  async function updateName() {
+    if (!name) {
+      setError("O nome não pode ser vazio");
+      setSuccess(null);
+      setTimeout(() => {
+        setError(null);
+        setSuccess(null);
+      }, 3000);
+      return;
+    }
+    if (name.length < 3) {
+      setError("O nome deve ter pelo menos 3 caracteres");
+      setSuccess(null);
+      setTimeout(() => {
+        setError(null);
+        setSuccess(null);
+      }, 3000);
+      return;
+    }
+    if (name === currentValue) {
+      setError("O Nome não pode ser o mesmo");
+      setSuccess(null);
+      setTimeout(() => {
+        setError(null);
+        setSuccess(null);
+      }, 3000);
+      return;
+    }
+    setLoading(true);
+    await handleUpdateName({ name: name.trimEnd().trimStart() })
+      .then((res) => {
+        setSuccess("Nome atualizado com sucesso");
+        onReload();
+        setError(null);
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (err.response.data) {
+          setError(err.response.data.message);
+          setSuccess(null);
+        } else {
+          setError("Erro ao atualizar nome");
+          setSuccess(null);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+        setTimeout(() => {
+          setError(null);
+          setSuccess(null);
+        }, 3000);
+      });
+  }
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button className="bg-sky-700 text-white rounded p-2 cursor-pointer hover:bg-sky-800 transition-all">
+          <FaPen />
+        </button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <div className="mt-8">
+          {error && (
+            <div className="bg-red-500 text-white p-2 rounded mb-4">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="bg-green-500 text-white p-2 rounded mb-4">
+              {success}
+            </div>
+          )}
+        </div>
+        <DialogHeader>
+          <DialogTitle>Editar Nome</DialogTitle>
+          <DialogDescription>
+            Faça alterações no seu perfil aqui. Clique em salvar quando terminar
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="nome" className="text-right">
+              Nome
+            </label>
+            <input
+              type="text"
+              id="nome"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="col-span-3 outline-none p-2 rounded border border-gray-400 focus:border-gray-600"
+              placeholder="Insira seu nome"
+            />
+          </div>
+        </div>
+        <DialogFooter className="flex">
+          <button
+            onClick={() => updateName()}
+            className="bg-sky-700 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-800"
+          >
+            {loading ? "Aguarde..." : "Salvar"}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function EditEmailDialog({ onReload, currentValue }: IDialogProps) {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const { login } = useAuth();
+
+  const togglePass = () => setShowPassword((prev) => !prev);
+
+  async function updateEmail() {
+    if (!email) {
+      setError("O email não pode ser vazio");
+      setSuccess(null);
+      setTimeout(() => {
+        setError(null);
+        setSuccess(null);
+      }, 3000);
+      return;
+    }
+    if (email === currentValue) {
+      setError("O email não pode ser o mesmo");
+      setSuccess(null);
+      setTimeout(() => {
+        setError(null);
+        setSuccess(null);
+      }, 3000);
+      return;
+    }
+    setLoading(true);
+    await handleUpdateEmail({ email: email.trim(), password: password })
+      .then((res) => {
+        setSuccess("Email atualizado com sucesso");
+        login({ ...res.data, isAdmin: res.data.role === "ADMIN" });
+        onReload();
+        setError(null);
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (err.response.data) {
+          setError(err.response.data.message);
+          setSuccess(null);
+        } else {
+          setError("Erro ao atualizar email");
+          setSuccess(null);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+        setTimeout(() => {
+          setError(null);
+          setSuccess(null);
+        }, 3000);
+      });
+  }
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button className="bg-sky-700 text-white rounded p-2 cursor-pointer hover:bg-sky-800 transition-all">
+          <FaPen />
+        </button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <div className="mt-8">
+          {error && (
+            <div className="bg-red-500 text-white p-2 rounded mb-4">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="bg-green-500 text-white p-2 rounded mb-4">
+              {success}
+            </div>
+          )}
+        </div>
+        <DialogHeader>
+          <DialogTitle>Editar Email</DialogTitle>
+          <DialogDescription>
+            Faça alterações no seu perfil aqui. Clique em salvar quando terminar
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="senha" className="text-right">
+              Senha
+            </label>
+            <input
+              type={showPassword ? "text" : "password"}
+              id="senha"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="col-span-3 outline-none p-2 rounded border border-gray-400 focus:border-gray-600"
+              placeholder="Insira sua senha"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="Insira seu email" className="text-right">
+              Email
+            </label>
+            <input
+              type="text"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="col-span-3 outline-none p-2 rounded border border-gray-400 focus:border-gray-600"
+              placeholder="Email"
+            />
+          </div>
+        </div>
+        <DialogFooter className="flex">
+          <button
+            disabled={loading}
+            onClick={() => updateEmail()}
+            className="bg-sky-700 text-white rounded p-2 cursor-pointer hover:bg-sky-800"
+          >
+            {loading ? "Aguarde..." : "Salvar"}
+          </button>
+
+          <button
+            onClick={togglePass}
+            className="bg-sky-700 text-white rounded p-2 cursor-pointer hover:bg-sky-800"
+          >
+            {showPassword ? "Ocultar senha" : "Mostrar senha"}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function EditBiDialog({ onReload, currentValue }: IDialogProps) {
+  const [bi, setBi] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  async function updateBi() {
+    if (bi === currentValue) {
+      setError("O BI não pode ser o mesmo");
+      setSuccess(null);
+      setTimeout(() => {
+        setError(null);
+        setSuccess(null);
+      }, 3000);
+      return;
+    }
+    setLoading(true);
+    await handleUpdateBI({ bi: bi })
+      .then((res) => {
+        console.log(res.data);
+        setSuccess("BI atualizado com sucesso");
+        onReload();
+        setError(null);
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (err.response.data) {
+          setError(err.response.data.message);
+          setSuccess(null);
+        } else {
+          setError("Erro ao atualizar BI");
+          setSuccess(null);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+        setTimeout(() => {
+          setError(null);
+          setSuccess(null);
+        }, 3000);
+      });
+  }
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button className="bg-sky-700 text-white rounded p-2 cursor-pointer hover:bg-sky-800 transition-all">
+          <FaPen />
+        </button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <div className="mt-8">
+          {error && (
+            <div className="bg-red-500 text-white p-2 rounded mb-4">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="bg-green-500 text-white p-2 rounded mb-4">
+              {success}
+            </div>
+          )}
+        </div>
+        <DialogHeader>
+          <DialogTitle>Editar BI</DialogTitle>
+          <DialogDescription>
+            Faça alterações no seu perfil aqui. Clique em salvar quando terminar
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="bi" className="text-right">
+              BI
+            </label>
+            <input
+              type="text"
+              id="bi"
+              value={bi}
+              onChange={(e) => setBi(e.target.value)}
+              className="col-span-3 outline-none p-2 rounded border border-gray-400 focus:border-gray-600"
+              placeholder="Insira o seu BI"
+            />
+          </div>
+        </div>
+        <DialogFooter className="flex">
+          <button
+            onClick={() => updateBi()}
+            className="bg-sky-700 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-800"
+          >
+            {loading ? "Aguarde..." : "Salvar"}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function EditPhoneDialog({ onReload, currentValue }: IDialogProps) {
+  const [phone, setPhone] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  async function updatePhone() {
+    if (phone === currentValue) {
+      setError("O telefone não pode ser o mesmo");
+      setSuccess(null);
+      setTimeout(() => {
+        setError(null);
+        setSuccess(null);
+      }, 3000);
+      return;
+    }
+    setLoading(true);
+    await handleUpdatePhone({ phoneNumber: phone.trim() })
+      .then((res) => {
+        setSuccess("Telefone atualizado com sucesso");
+        onReload();
+        setError(null);
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (err.response.data) {
+          setError(err.response.data.message);
+          setSuccess(null);
+        } else {
+          setError("Erro ao atualizar telefone");
+          setSuccess(null);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+        setTimeout(() => {
+          setError(null);
+          setSuccess(null);
+        }, 3000);
+      });
+  }
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button className="bg-sky-700 text-white rounded p-2 cursor-pointer hover:bg-sky-800 transition-all">
+          <FaPen />
+        </button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <div className="mt-8">
+          {error && (
+            <div className="bg-red-500 text-white p-2 rounded mb-4">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="bg-green-500 text-white p-2 rounded mb-4">
+              {success}
+            </div>
+          )}
+        </div>
+        <DialogHeader>
+          <DialogTitle>Editar telefone</DialogTitle>
+          <DialogDescription>
+            Faça alterações no seu perfil aqui. Clique em salvar quando terminar
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="telefone" className="text-right">
+              Telefone
+            </label>
+            <input
+              type="text"
+              id="telefone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="col-span-3 outline-none p-2 rounded border border-gray-400 focus:border-gray-600"
+              placeholder="Insira o seu telefone"
+            />
+          </div>
+        </div>
+        <DialogFooter className="flex">
+          <button
+            onClick={() => updatePhone()}
+            className="bg-sky-700 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-800"
+          >
+            {loading ? "Aguarde..." : "Salvar"}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function EditPasswordDialog() {
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [newPassword, setNewPassword] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+
+  const togglePass = () => setShowPassword((prev) => !prev);
+
+  async function updatePassword() {
+    if (newPassword !== confirmPassword) {
+      setError("As senhas não coincidem");
+      setSuccess(null);
+      setTimeout(() => {
+        setError(null);
+        setSuccess(null);
+      }, 3000);
+      return;
+    }
+    setLoading(true);
+    await handleUpdatePassword({ password: password, newPassword: newPassword })
+      .then(() => {
+        setSuccess("Senha atualizada com sucesso");
+        setError(null);
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (err.response.data) {
+          setError(err.response.data.message);
+          setSuccess(null);
+        } else {
+          setError("Erro ao atualizar senha");
+          setSuccess(null);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+        setTimeout(() => {
+          setError(null);
+          setSuccess(null);
+        }, 3000);
+      });
+  }
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button className="bg-sky-700 text-white rounded p-2 cursor-pointer hover:bg-sky-800 transition-all">
+          Editar senha
+        </button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <div className="mt-8">
+          {error && (
+            <div className="bg-red-500 text-white p-2 rounded mb-4">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="bg-green-500 text-white p-2 rounded mb-4">
+              {success}
+            </div>
+          )}
+        </div>
+        <DialogHeader>
+          <DialogTitle>Editar senha</DialogTitle>
+          <DialogDescription>
+            Faça alterações no seu perfil aqui. Clique em salvar quando terminar
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="flex flex-col justify-around gap-2">
+            <label htmlFor="actpass">Senha actual</label>
+            <input
+              type={showPassword ? "text" : "password"}
+              id="actpass"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="col-span-3 outline-none p-2 rounded border border-gray-400 focus:border-gray-600"
+              placeholder="Insira a sua senha actual"
+            />
+          </div>
+
+          <div className="flex flex-col justify-around gap-2">
+            <label htmlFor="pass">Nova senha</label>
+            <input
+              type={showPassword ? "text" : "password"}
+              id="pass"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="col-span-3 outline-none p-2 rounded border border-gray-400 focus:border-gray-600"
+              placeholder="Insira a sua nova senha"
+            />
+          </div>
+          <div className="flex flex-col justify-around gap-2">
+            <label htmlFor="cpass">Confirmar senha</label>
+            <input
+              type={showPassword ? "text" : "password"}
+              id="cpass"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="col-span-3 outline-none p-2 rounded border border-gray-400 focus:border-gray-600"
+              placeholder="Confirme sua nova senha"
+            />
+          </div>
+        </div>
+        <DialogFooter className="flex">
+          <button
+            onClick={() => updatePassword()}
+            className="bg-sky-700 text-white rounded p-2 cursor-pointerhover:bg-sky-800"
+          >
+            {loading ? "Aguarde..." : "Salvar"}
+          </button>
+
+          <button
+            onClick={togglePass}
+            className="bg-sky-700 text-white rounded p-2 cursor-pointer hover:bg-sky-800"
+          >
+            {showPassword ? "Ocultar senha" : "Mostrar senha"}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function DeleteAccountDialog() {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const { logout } = useAuth();
+  async function deleteAccount() {
+    await handleDeleteAccount()
+      .then((res) => {
+        logout();
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (err.response.data) {
+          setError(err.response.data.message);
+        } else {
+          setError("Erro ao eliminar sua conta");
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+        setTimeout(() => {
+          setError(null);
+        }, 3000);
+      });
+  }
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <button className="bg-red-600 text-white p-2 rounded hover:bg-red-700 transition-all cursor-pointer">
+          Eliminar conta
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        <div className="mt-8">
+          {error && (
+            <div className="bg-red-500 text-white p-2 rounded mb-4">
+              {error}
+            </div>
+          )}
+        </div>
+        <DialogHeader>
+          <DialogTitle className="mt-8">
+            Tem certeza que deseja continuar?
+          </DialogTitle>
+          <DialogDescription>
+            Esta acção não pode ser desfeita. Isso irá eliminar permanentemente
+            a sua conta e seus dados do servidor.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="flex">
+          <button
+            disabled={loading}
+            onClick={() => deleteAccount()}
+            className="bg-red-600 text-white rounded p-2 cursor-pointer self-start hover:bg-red-700"
+          >
+            {loading ? "Eliminando..." : "Eliminar"}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function DeleteCourseDialog({
+  id,
+  onReload,
+}: {
+  id: string;
+  onReload: Function;
+}) {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  async function deleteCourse() {
+    setLoading(true);
+    await handleDeleteCourse({ id: id })
+      .then((res) => {
+        console.log(res.data);
+        onReload();
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (err.response.data) {
+          setError(err.response.data.message);
+        } else {
+          setError("Erro ao atualizar telefone");
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+        setTimeout(() => {
+          setError(null);
+        }, 3000);
+      });
+  }
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <button className="bg-red-600 text-white rounded p-1 cursor-pointer self-start hover:bg-red-700">
+          <FaTrash size={15} />
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        <div className="mt-8">
+          {error && (
+            <div className="bg-red-500 text-white p-2 rounded mb-4">
+              {error}
+            </div>
+          )}
+        </div>
+        <DialogHeader>
+          <DialogTitle>Eliminar curso</DialogTitle>
+          <DialogDescription>
+            Tem certeza que quer eliminar este curso
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="flex">
+          <button
+            disabled={loading}
+            onClick={() => deleteCourse()}
+            className="bg-red-600 text-white rounded p-2 cursor-pointer self-start hover:bg-red-700"
+          >
+            {loading ? "Eliminando..." : "Continuar"}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function EditCourseDialog({
+  id,
+  data,
+  onReload,
+}: {
+  id: string;
+  data: ICourse;
+  onReload: Function;
+}) {
+  const initialValues = {
+    id: data.id,
+    title: data.title,
+    description: data.description,
+    duration: data.duration,
+    payed: false,
+    price: data.price,
+  };
+
+  const [formData, setFormData] = useState<ICourse>(initialValues);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  async function updateCourse() {
+    setLoading(true);
+    await handleUpdateCourse({ id, data: formData })
+      .then((res) => {
+        console.log(res.data);
+        setSuccess(res.data.message);
+        onReload();
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (err.response.data) {
+          setError(err.response.data.message);
+          setSuccess(null);
+        } else {
+          setError("Erro ao atualizar telefone");
+          setSuccess(null);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+        setTimeout(() => {
+          setError(null);
+          setSuccess(null);
+        }, 3000);
+      });
+  }
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <button className="bg-sky-600 text-white p-1 rounded hover:bg-sky-700 transition-all cursor-pointer">
+          <FaPen size={15} />
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        {error && (
+          <div className="bg-red-500 text-white p-2 mt-2 rounded">{error}</div>
+        )}
+        {success && (
+          <div className="bg-green-500 text-white p-2 mt-2 rounded">
+            {success}
+          </div>
+        )}
+        <DialogHeader>
+          <DialogTitle>Atualizar curso {data.title}</DialogTitle>
+          <DialogDescription></DialogDescription>
+        </DialogHeader>
+
+        <form action="" className="flex flex-col gap-4">
+          <input
+            className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
+            type="text"
+            placeholder="Título"
+            value={formData.title}
+            onChange={(e) =>
+              setFormData({ ...formData, title: e.target.value })
+            }
+          />
+          <textarea
+            className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
+            placeholder="Descrição"
+            value={formData.description}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
+          />
+          <input
+            className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
+            type="text"
+            placeholder="Duração"
+            value={formData.duration}
+            onChange={(e) =>
+              setFormData({ ...formData, duration: e.target.value })
+            }
+          />
+          <input
+            className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
+            type="number"
+            placeholder="Preço"
+            value={formData.price}
+            onChange={(e) =>
+              setFormData({ ...formData, price: e.target.valueAsNumber })
+            }
+          />
+          <p>
+            Obs: Se deixar o campo de preço vazio o curso será salvo como
+            gratuito
+          </p>
+        </form>
+        <DialogFooter className="flex">
+          <button
+            disabled={loading}
+            onClick={() => updateCourse()}
+            className="bg-sky-600 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-700"
+          >
+            {loading ? "Atualizando..." : "Atualizar"}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function CreateCourseDialog({ onReload }: { onReload: Function }) {
+  const initialValues = {
+    id: "",
+    title: "",
+    description: "",
+    duration: "",
+    payed: false,
+    price: 0,
+  };
+
+  const [formData, setFormData] = useState<ICourse>(initialValues);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  async function createCourse() {
+    setLoading(true);
+    await handleCreateCourse({ data: formData })
+      .then((res) => {
+        console.log(res.data);
+        setSuccess(res.data.message);
+        onReload();
+      })
+      .catch((err) => {
+        console.log(err);
+        if (err.response.data) {
+          setError(err.response.data.message);
+          setSuccess(null);
+        } else {
+          setError("Erro ao adicionar curso");
+          setSuccess(null);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+        setTimeout(() => {
+          setError(null);
+          setSuccess(null);
+        }, 3000);
+      });
+  }
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <button className="bg-sky-600 text-white p-2 rounded hover:bg-sky-700 transition-all cursor-pointer">
+          <FaPlus />
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        {error && (
+          <div className="bg-red-500 text-white p-2 mt-2 rounded">{error}</div>
+        )}
+        {success && (
+          <div className="bg-green-500 text-white p-2 mt-2 rounded">
+            {success}
+          </div>
+        )}
+        <DialogHeader>
+          <DialogTitle>Adicionar curso</DialogTitle>
+          <DialogDescription></DialogDescription>
+        </DialogHeader>
+
+        <form action="" className="flex flex-col gap-4">
+          <input
+            className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
+            type="text"
+            placeholder="Título"
+            value={formData.title}
+            onChange={(e) =>
+              setFormData({ ...formData, title: e.target.value })
+            }
+          />
+          <textarea
+            className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
+            placeholder="Descrição"
+            value={formData.description}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
+          />
+          <input
+            className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
+            type="text"
+            placeholder="Duração"
+            value={formData.duration}
+            onChange={(e) =>
+              setFormData({ ...formData, duration: e.target.value })
+            }
+          />
+          <input
+            className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
+            type="number"
+            placeholder="Preço"
+            value={formData.price}
+            onChange={(e) =>
+              setFormData({ ...formData, price: e.target.valueAsNumber })
+            }
+          />
+          <p>
+            Obs: Se deixar o campo de preço vazio o curso será salvo como
+            gratuito
+          </p>
+        </form>
+        <DialogFooter className="flex">
+          <button
+            disabled={loading}
+            onClick={() => createCourse()}
+            className="bg-sky-600 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-700"
+          >
+            {loading ? "Adicionando..." : "Adicionar"}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function DeleteInfoDialog({
+  id,
+  onReload,
+}: {
+  id: string;
+  onReload: Function;
+}) {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  async function deleteInformation() {
+    setLoading(true);
+    await handleDeleteInformation(id)
+      .then((res) => {
+        console.log(res.data);
+        setSuccess("Informação eliminada com sucesso");
+        onReload();
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (err.response.data) {
+          setError(err.response.data.message);
+        } else {
+          setError("Erro ao eliminar informação");
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+        setTimeout(() => {
+          setError(null);
+          setSuccess(null);
+        }, 3000);
+      });
+  }
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <button className="bg-red-600 text-white rounded p-1 cursor-pointer self-start hover:bg-red-700">
+          <FaTrash size={15} />
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        <div className="mt-8">
+          {error && (
+            <div className="bg-red-500 text-white p-2 rounded mb-4">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="bg-green-500 text-white p-2 rounded mb-4">
+              {success}
+            </div>
+          )}
+        </div>
+        <DialogHeader>
+          <DialogTitle>Eliminar informação</DialogTitle>
+          <DialogDescription>
+            Tem certeza que quer eliminar esta informação
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="flex">
+          <button
+            disabled={loading}
+            onClick={() => deleteInformation()}
+            className="bg-red-600 text-white rounded p-1 cursor-pointer self-start hover:bg-red-700"
+          >
+            {loading ? "Eliminando..." : "Continuar"}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function EditInfoDialog({
+  data,
+  onReload,
+}: {
+  data: IInformation;
+  onReload: Function;
+}) {
+  const initialValues = {
+    id: data.id,
+    title: data.title,
+    category: data.category,
+    image: data.image,
+    body: data.body,
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
+  };
+
+  const [formData, setFormData] = useState<IInformation>(initialValues);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  async function updateInfo() {
+    setLoading(true);
+    await handleUpdateInformation({ id: data.id, data: formData })
+      .then((res) => {
+        console.log(res.data);
+        setSuccess(res.data);
+        onReload();
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (err.response.data) {
+          setError(err.response.data.message);
+          setSuccess(null);
+        } else {
+          setError("Erro ao atualizar telefone");
+          setSuccess(null);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+        setTimeout(() => {
+          setError(null);
+          setSuccess(null);
+        }, 3000);
+      });
+  }
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <button className="bg-sky-600 text-white p-1 rounded hover:bg-sky-700 transition-all cursor-pointer">
+          <FaPen size={15} />
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        {error && (
+          <div className="bg-red-500 text-white p-2 mt-2 rounded">{error}</div>
+        )}
+        {success && (
+          <div className="bg-green-500 text-white p-2 mt-2 rounded">
+            {success}
+          </div>
+        )}
+        <DialogHeader>
+          <DialogTitle>Atualizar informação {data.title}</DialogTitle>
+          <DialogDescription></DialogDescription>
+        </DialogHeader>
+
+        <form action="" className="flex flex-col gap-4">
+          <input
+            className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
+            type="text"
+            placeholder="Título"
+            value={formData.title}
+            onChange={(e) =>
+              setFormData({ ...formData, title: e.target.value })
+            }
+          />
+          <input
+            className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
+            type="text"
+            placeholder="Duração"
+            value={formData.category}
+            onChange={(e) =>
+              setFormData({ ...formData, category: e.target.value })
+            }
+          />
+
+          <textarea
+            className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
+            placeholder="Descrição"
+            value={formData.body}
+            onChange={(e) => setFormData({ ...formData, body: e.target.value })}
+          />
+        </form>
+        <DialogFooter className="flex">
+          <button
+            disabled={loading}
+            onClick={() => updateInfo()}
+            className="bg-sky-600 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-700"
+          >
+            {loading ? "Atualizando..." : "Atualizar"}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function CreateInfoDialog({ onReload }: { onReload: Function }) {
+  const initialValues = {
+    id: "",
+    title: "",
+    category: "",
+    image: null,
+    body: "",
+    createdAt: "",
+    updatedAt: "",
+  };
+
+  const [formData, setFormData] = useState<IInformation>(initialValues);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  async function createInformation() {
+    setLoading(true);
+    await handleCreateInformation(formData, selectedFile!)
+      .then((res) => {
+        console.log(res.data);
+        setSuccess("Informação adicionada com sucesso");
+        onReload();
+        setFormData(initialValues);
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (err.response.data) {
+          setError(err.response.data.message);
+          setSuccess(null);
+        } else {
+          setError("Erro ao adicionar curso");
+          setSuccess(null);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+        setTimeout(() => {
+          setError(null);
+          setSuccess(null);
+        }, 3000);
+      });
+  }
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const handleFileRemove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setSelectedFile(null);
+    setPreviewUrl(null);
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <button className="bg-sky-600 text-white p-2 rounded hover:bg-sky-700 transition-all cursor-pointer">
+          <FaPlus />
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        {error && (
+          <div className="bg-red-500 text-white p-2 mt-2 rounded">{error}</div>
+        )}
+        {success && (
+          <div className="bg-green-500 text-white p-2 mt-2 rounded">
+            {success}
+          </div>
+        )}
+        <DialogHeader>
+          <DialogTitle>Adicionar informação</DialogTitle>
+          <DialogDescription></DialogDescription>
+        </DialogHeader>
+
+        <form action="" className="flex flex-col gap-4">
+          <input
+            className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
+            type="text"
+            placeholder="Título"
+            value={formData.title}
+            onChange={(e) =>
+              setFormData({ ...formData, title: e.target.value })
+            }
+          />
+          <input
+            className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
+            type="text"
+            placeholder="Categoria"
+            value={formData.category}
+            onChange={(e) =>
+              setFormData({ ...formData, category: e.target.value })
+            }
+          />
+
+          <textarea
+            className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
+            placeholder="Informação"
+            value={formData.body}
+            onChange={(e) => setFormData({ ...formData, body: e.target.value })}
+          />
+          <div className="grid w-full max-w-sm items-center gap-1.5">
+            <label htmlFor="picture">Anexo (.jpeg, .jpg, .png )</label>
+            <div className="flex items-center gap-2">
+              {previewUrl && (
+                <div style={{ margin: "10px 0" }}>
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    style={{ maxWidth: "50px" }}
+                  />
+                </div>
+              )}
+              <Input
+                id="picture"
+                type="file"
+                accept=".jpeg, .jpg, .png"
+                onChange={handleFileChange}
+              />
+              <button
+                onClick={(e) => handleFileRemove(e)}
+                className="bg-sky-900 hover:bg-sky-950 transition-all cursor-pointer text-white p-2 rounded"
+              >
+                <FaTrash />
+              </button>
+            </div>
+          </div>
+        </form>
+        <DialogFooter className="flex">
+          <button
+            disabled={loading}
+            onClick={() => createInformation()}
+            className="bg-sky-600 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-700"
+          >
+            {loading ? "Adicionando..." : "Adicionar"}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function RegisterEnrollDialog({ id }: { id: string }) {
+  const [selectedPicture, setSelectedPicture] = useState<File | null>();
+  const [selectedBi, setSelectedBi] = useState<File | null>();
+  const [selectedCertificate, setSelectedCertificate] = useState<File | null>();
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const { state } = useAuth();
+
+  async function registerEnrollment() {
+    setLoading(true);
+    const data = {
+      courseId: id,
+      bi: selectedBi!,
+      certf: selectedCertificate!,
+      photo: selectedPicture!,
+      token: state.user?.token!,
+    };
+    await handleRegisterEnrollment(data)
+      .then((res) => {
+        setSuccess("A sua inscrição foi seita com sucesso");
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (err.response.data) {
+          setError(err.response.data.message);
+          setSuccess(null);
+        } else {
+          setError("Erro ao se inscrever");
+          setSuccess(null);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+        setTimeout(() => {
+          setError(null);
+          setSuccess(null);
+        }, 3000);
+      });
+  }
+
+  const handlePictureChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedPicture(file);
+    }
+  };
+
+  const handleBiChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedBi(file);
+    }
+  };
+
+  const handleCertificateChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedCertificate(file);
+    }
+  };
+
+  const handlePictureRemove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setSelectedPicture(null);
+  };
+
+  const handleBiRemove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setSelectedBi(null);
+  };
+
+  const handleCertificateRemove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setSelectedCertificate(null);
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <button className="bg-sky-600 text-white p-2 rounded hover:bg-sky-700 transition-all cursor-pointer">
+          Inscrever-se
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        {error && (
+          <div className="bg-red-500 text-white p-2 mt-2 rounded">{error}</div>
+        )}
+        {success && (
+          <div className="bg-green-500 text-white p-2 mt-2 rounded">
+            {success}
+          </div>
+        )}
+        <form action={registerEnrollment} className="flex flex-col gap-4">
+          <h1 className="text-2xl">Faça a sua inscrição</h1>
+          <div className="grid w-full max-w-sm items-center gap-1.5">
+            <label htmlFor="picture">Imagem (.jpeg, .jpg, .png, .pdf)</label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="picture"
+                type="file"
+                accept=".jpeg, .jpg, .png, .pdf"
+                onChange={handlePictureChange}
+              />
+              <button
+                onClick={(e) => handlePictureRemove(e)}
+                className="bg-sky-900 hover:bg-sky-950 transition-all cursor-pointer text-white p-2 rounded"
+              >
+                <FaTrash />
+              </button>
+            </div>
+          </div>
+          <div className="grid w-full max-w-sm items-center gap-1.5">
+            <label htmlFor="bilhete">BI (.jpeg, .jpg, .png, .pdf)</label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="bilhete"
+                type="file"
+                accept=".jpeg, .jpg, .png"
+                onChange={handleBiChange}
+              />
+              <button
+                onClick={(e) => handleBiRemove(e)}
+                className="bg-sky-900 hover:bg-sky-950 transition-all cursor-pointer text-white p-2 rounded"
+              >
+                <FaTrash />
+              </button>
+            </div>
+          </div>
+          <div className="grid w-full max-w-sm items-center gap-1.5">
+            <label htmlFor="cert">Anexo (.jpeg, .jpg, .png)</label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="cert"
+                type="file"
+                accept=".jpeg, .jpg, .png"
+                onChange={handleCertificateChange}
+              />
+              <button
+                onClick={(e) => handleCertificateRemove(e)}
+                className="bg-sky-900 hover:bg-sky-950 transition-all cursor-pointer text-white p-2 rounded"
+              >
+                <FaTrash />
+              </button>
+            </div>
+          </div>
+          <button
+            disabled={loading}
+            onClick={() => registerEnrollment()}
+            className="self-start bg-green-600 text-white font-bold cursor-pointer p-2 rounded-md hover:bg-green-800 transition-all"
+          >
+            {loading ? "Aguarde..." : "Inscrever-se"}
+          </button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function StudentInfoDialog({
+  student,
+  className,
+}: {
+  student: IStudent;
+  className?: string;
+}) {
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <button className="font-bold cursor-pointer flex flex-col gap-1 items-start">
+                {student?.name}
+                <span className="flex items-center gap-1 text-gray-600 text-[12px]">
+                  <FaIdCard /> {student.bi}
+                </span>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent className="bg-gray-800 text-white rounded p-1">
+              Informações do estudante
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </DialogTrigger>
+      <DialogContent>
+        <h1 className="text-2xl font-bold">{student.name}</h1>
+        <h4 className="flex items-center gap-2 text-gray-500">
+          <i>
+            <MdMail />
+          </i>
+          {student?.email}
+        </h4>
+        <h4 className="flex items-center gap-2 text-gray-500">
+          <i>
+            <FaPhone />
+          </i>
+          {student?.phoneNumber}
+        </h4>
+        <h4 className="flex items-center gap-2 text-gray-500">
+          <i>
+            <FaIdCard />
+          </i>
+          {student?.bi}
+        </h4>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function ConfirmActionDialog({
+  children,
+  tooltipContent,
+  onConfirm,
+}: {
+  children: ReactNode;
+  tooltipContent: string;
+  onConfirm: Function;
+}) {
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>{children}</TooltipTrigger>
+            <TooltipContent className="bg-gray-800 text-white rounded p-1 mb-1">
+              {tooltipContent}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </DialogTrigger>
+      <DialogContent>
+        <p>Tem certeza que deseja continuar?</p>
+        <DialogFooter className="flex">
+          <button
+            className="cursor-pointer bg-sky-700 text-white font-bold p-2 rounded"
+            onClick={() => onConfirm()}
+          >
+            Confirmar
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function RegisterAdminDialog({ onReload }: { onReload: Function }) {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [error, setError] = useState<string | undefined>(undefined);
+  const [success, setSuccess] = useState<string | undefined>(undefined);
+  const [registerBody, setRegisterBody] = useState<IRegister>({
+    bi: "",
+    email: "",
+    name: "",
+    password: "",
+    phoneNumber: "",
+  });
+
+  async function registerAdmin(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    await handleRegisterAdmin(registerBody)
+      .then((res) => {
+        handleResetForm();
+        onReload();
+        setSuccess("Administradore registrado com sucesso");
+      })
+      .catch((err) => {
+        if (err.response && err.response.data) {
+          setError(err.response.data.message);
+        } else {
+          setError(err.message);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+        setTimeout(() => {
+          setError(undefined);
+          setSuccess(undefined);
+        }, 3000);
+      });
+  }
+
+  const handleResetForm = () => {
+    setRegisterBody({
+      bi: "",
+      email: "",
+      name: "",
+      password: "",
+      phoneNumber: "",
+    });
+    setError(undefined);
+    setSuccess(undefined);
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <button className="bg-sky-600 text-white p-2 rounded hover:bg-sky-700 transition-all cursor-pointer">
+          <FaPlus />
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <div className="flex flex-col gap-4 items-center justify-center mb-4">
+            <i className="bg-sky-900 p-4 rounded-full">
+              <FaUserPlus className="text-white" size={25} />
+            </i>
+
+            <h1 className="text-2xl ">Registrar administrador</h1>
+            {error && (
+              <p className="bg-red-300 text-white p-2 w-full text-center rounded-md">
+                {error}
+              </p>
+            )}
+            {success && (
+              <p className="bg-green-400 text-white p-2 w-full text-center rounded-md">
+                {success}
+              </p>
+            )}
+          </div>
+        </DialogHeader>
+
+        <form
+          onSubmit={(e) => registerAdmin(e)}
+          className="flex flex-col gap-4"
+        >
+          <div className="auth-input-container">
+            <i className="auth-icon-container">
+              <FaUser className="auth-icon" size={20} />
+            </i>
+            <input
+              type="text"
+              value={registerBody.name}
+              onChange={(e) =>
+                setRegisterBody({ ...registerBody, name: e.target.value })
+              }
+              placeholder="Insira o seu nome"
+              className="auth-input"
+              required
+            />
+          </div>
+          <div className="auth-input-container">
+            <i className="auth-icon-container">
+              <MdMail className="auth-icon" size={20} />
+            </i>
+            <input
+              type="email"
+              value={registerBody.email}
+              onChange={(e) =>
+                setRegisterBody({ ...registerBody, email: e.target.value })
+              }
+              placeholder="exmplo@gmail.com"
+              className="auth-input"
+              required
+            />
+          </div>
+          <div className="auth-input-container">
+            <i className="auth-icon-container">
+              <MdPassword className="auth-icon" size={20} />
+            </i>
+            <input
+              type={showPassword ? "text" : "password"}
+              value={registerBody.password}
+              onChange={(e) =>
+                setRegisterBody({ ...registerBody, password: e.target.value })
+              }
+              className="auth-input"
+              placeholder="senha"
+              required
+            />
+            <button
+              className="cursor-pointer"
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+            >
+              {showPassword ? (
+                <FaEyeSlash className="text-gray-600" />
+              ) : (
+                <FaEye className="text-gray-600" />
+              )}
+            </button>
+          </div>
+          <div className="auth-input-container">
+            <i className="auth-icon-container">
+              <FaIdCard className="auth-icon" size={20} />
+            </i>
+            <input
+              type="text"
+              value={registerBody.bi}
+              onChange={(e) =>
+                setRegisterBody({ ...registerBody, bi: e.target.value })
+              }
+              className="auth-input"
+              placeholder="BI"
+              required
+            />
+          </div>
+          <div className="auth-input-container">
+            <i className="auth-icon-container">
+              <FaPhone className="auth-icon" size={20} />
+            </i>
+            <input
+              type="text"
+              value={registerBody.phoneNumber}
+              onChange={(e) =>
+                setRegisterBody({
+                  ...registerBody,
+                  phoneNumber: e.target.value,
+                })
+              }
+              className="auth-input"
+              placeholder="Telefone"
+              required
+            />
+          </div>
+          <div className="flex gap-2">
+            <SubmitButton
+              label={"Criar conta"}
+              actionLabel="Aguarde..."
+              loading={loading}
+            />
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <button
+                    type="button"
+                    disabled={loading}
+                    onClick={() => handleResetForm()}
+                    className="bg-sky-800 hover:bg-sky-900 transition-all text-white font-bold py-2 px-4 rounded cursor-pointer"
+                  >
+                    <FaTrash />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="bg-gray-500 p-2 text-white rounded mb-2">
+                  Restaurar formulário
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function DeleteAdminAccountDialog({
+  id,
+  onReload,
+}: {
+  id: string;
+  onReload: Function;
+}) {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | undefined>(undefined);
+  const [success, setSuccess] = useState<string | undefined>(undefined);
+  async function deleteAccount() {
+    await handleDeleteAdminAccount(id)
+      .then((res) => {
+        onReload();
+        setSuccess("Conta eliminada com sucesso");
+      })
+      .catch((err) => {
+        if (err.response && err.response.data) {
+          setError(err.response.data.message);
+        } else {
+          setError(err.message);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+        setTimeout(() => {
+          setError(undefined);
+          setSuccess(undefined);
+        }, 3000);
+      });
+  }
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <button className="bg-red-600 text-white p-1 rounded hover:bg-red-700 transition-all cursor-pointer">
+          Eliminar conta
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        <div className="mt-8">
+          {error && (
+            <p className="bg-red-300 text-white p-2 w-full text-center rounded-md">
+              {error}
+            </p>
+          )}
+          {success && (
+            <p className="bg-green-400 text-white p-2 w-full text-center rounded-md">
+              {success}
+            </p>
+          )}
+        </div>
+        <DialogHeader>
+          <DialogTitle className="mt-8">
+            Tem certeza que deseja continuar?
+          </DialogTitle>
+          <DialogDescription>
+            Esta acção não pode ser desfeita. Isso irá eliminar permanentemente
+            a sua conta e seus dados do servidor.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="flex">
+          <button
+            disabled={loading}
+            onClick={() => deleteAccount()}
+            className={`${loading ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-red-600 text-white rounded p-2 cursor-pointer self-start hover:bg-red-700"}`}
+          >
+            {loading ? "Eliminando..." : "Eliminar"}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+type ViewFileDialogProps = {
+  downloadLink: string;
+  type: string;
+};
+
+export const ViewFileDialog: React.FC<ViewFileDialogProps> = ({ downloadLink, type }) => {
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button
+          className="flex flex-col cursor-pointer items-center gap-2 text-red-600 hover:text-red-800 transition-colors duration-200"
+          title={`Visualizar ${type}`}
+        >
+          <FaFilePdf size={20} />
+          <span>{type}</span>
+        </button>
+      </DialogTrigger>
+
+      <DialogContent className="max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-lg font-semibold">
+            Visualizar {type}
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="mt-4 space-y-4">
+          <FileViewer downloadLink={downloadLink} />
+
+          <div className="text-right">
+            <a
+              href={downloadLink}
+              download
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
+            >
+              <FaDownload className="mr-2" />
+              Baixar {type}
+            </a>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};

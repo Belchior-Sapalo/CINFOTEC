@@ -1,6 +1,22 @@
 import axios from "axios";
 import { AUTH_TOKEN, BASE_URL } from "./consts";
 
+export const handleGetAllStudents = async () => {
+  return await axios.get(`${BASE_URL}/users/students`, {
+    headers: {
+      Authorization: `Bearer ${AUTH_TOKEN()}`
+    }
+  })
+}
+
+export const handleGetAllAdmins = async () => {
+  return await axios.get(`${BASE_URL}/users/admins`, {
+    headers: {
+      Authorization: `Bearer ${AUTH_TOKEN()}`
+    }
+  })
+}
+
 export const handleGetProfile = async () => {
   return await axios.get(`${BASE_URL}/users/me`, {
     headers: {
@@ -81,6 +97,14 @@ export const handleUpdatePassword = async (data: {
 };
 export const handleDeleteAccount = async () => {
   return await axios.delete(`${BASE_URL}/users/me`, {
+    headers: {
+      Authorization: `Bearer ${AUTH_TOKEN()}`,
+    },
+  });
+};
+
+export const handleDeleteAdminAccount = async (id: string) => {
+  return await axios.delete(`${BASE_URL}/users/${id}`, {
     headers: {
       Authorization: `Bearer ${AUTH_TOKEN()}`,
     },

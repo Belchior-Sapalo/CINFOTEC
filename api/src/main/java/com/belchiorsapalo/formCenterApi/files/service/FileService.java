@@ -114,7 +114,6 @@ public class FileService {
    public ResponseEntity<Resource> download(String fileName, HttpServletRequest request)
          throws IOException {
       Path filePath = fileStorageLocation.resolve(fileName).normalize();
-      System.out.println("rodando download");
       try {
          Resource resource = new UrlResource(filePath.toUri());
          String contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());

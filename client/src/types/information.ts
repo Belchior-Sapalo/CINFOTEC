@@ -9,7 +9,7 @@ export interface IInformation {
     id: string
     title: string
     category: string
-    image: IAtachment
+    image: IAtachment | null
     body: string
     createdAt: string
     updatedAt: string

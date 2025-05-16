@@ -70,8 +70,9 @@ public class UserService implements UserDetailsService {
         return new UserLoginResponseDTO(token, authenticatedUser.getRole(), authenticatedUser.getId());
     }
 
-    public List<User> getAll() {
-        return userRepository.findAll();
+    public List<User> getAll(boolean students, String adminBi) {
+        return students ? userRepository.findAll().stream().filter(user -> user.getRole().equals(UserRole.STUDENT) && !user.getCourses().isEmpty()).toList() :
+                userRepository.findAll().stream().filter(user -> user.getRole().equals(UserRole.ADMIN) && !user.getBi().equals(adminBi)).toList();
     }
 
     public UserProfileDTO getUserProfile(UUID id) {
