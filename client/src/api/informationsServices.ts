@@ -6,6 +6,11 @@ export const handleGetAllInformations = async () => {
   return await axios.get(`${BASE_URL}/informations`);
 };
 
+export const handleGetInformation = async (id: string) => {
+  return await axios.get(`${BASE_URL}/informations/${id}`);
+};
+
+
 export const handleGetInformationImage = async (id: string) => {
   return axios.get(`${BASE_URL}/informations/image/${id}`, {
     responseType: "blob",

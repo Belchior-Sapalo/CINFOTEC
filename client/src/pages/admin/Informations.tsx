@@ -47,8 +47,10 @@ export default function Informations() {
             Categoria: {information.category}
           </h5>
         </InfoCard.Header>
-        <InfoCard.Content>
-          <p>{information.body}</p>
+        <InfoCard.Content className="">
+          <div className="flex flex-col gap-2">
+            {information.body.split("\n").map((p, i) => <p className="text-justify" key={i}>{p}</p>)}
+          </div>
         </InfoCard.Content>
         <InfoCard.Footer>
           <div className="flex items-center gap-2">

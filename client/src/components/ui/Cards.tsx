@@ -11,11 +11,13 @@ import { Link } from "react-router";
 export function InformationCard({
   information,
   expanded,
+  className = "border flex flex-col gap-4 justify-between border-gray-300 p-4 rounded-md shadow",
 }: {
   information: IInformation;
   expanded: boolean;
+  className?: string;
 }) {
-  const maxInfoBodyLength = 200;
+  const maxInfoBodyLength = 100;
   const [loading, setLoading] = useState<boolean>(false);
   const [image, setImage] = useState<string | null>();
 
@@ -45,14 +47,7 @@ export function InformationCard({
   }, [information]);
 
   return (
-    <div className="border flex flex-col gap-4 justify-between border-gray-300 p-4 rounded-md shadow">
-      <div>
-        {loading ? (
-          <h4>Carregando imagem...</h4>
-        ) : (
-          <img src={image ? image : imagePath} alt="Anexo da informação" />
-        )}
-      </div>
+    <div className={className}>
       <div>
         <h1 className="text-2xl mb-2">{information.title}</h1>
         <h5 className="border-l-2 border-green-600 px-2 mb-2">
@@ -61,6 +56,20 @@ export function InformationCard({
         <h5 className="border-l-2 border-red-600 px-2 mb-2">
           Categoria: {information.category}
         </h5>
+      </div>
+      <div className="flex items-center justify-center">
+        {loading ? (
+          <h4>Carregando imagem...</h4>
+        ) : (
+          <img
+            width={300}
+            height={300}
+            src={image ? image : imagePath}
+            alt="Anexo da informação"
+          />
+        )}
+      </div>
+      <div>
         <p>
           {expanded
             ? information.body
@@ -69,11 +78,16 @@ export function InformationCard({
             : `${information.body.substring(0, maxInfoBodyLength)}...`}
         </p>
 
-        <div className="mt-4">
-          <button className="bg-gray-700 hover:bg-gray-800 transition-all cursor-pointer p-2 text-gray-50 rounded-md">
-            mais...
-          </button>
-        </div>
+        {!expanded && (
+          <div className="mt-4">
+            <Link
+              to={`/informacao?id=${information.id}`}
+              className="bg-gray-700 hover:bg-gray-800 transition-all cursor-pointer p-2 text-gray-50 rounded-md"
+            >
+              mais...
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -90,41 +104,46 @@ export function CourseCard({
   return (
     <CourseCard1.Container>
       <CourseCard1.Header>
-        <h1 className="text-2xl">{course.title}</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl">{course.title}</h1>
+          {!course.payed && (
+            <p className="flex items-center gap-2">
+              {" "}
+              <i className="text-amber-600">
+                <FaGift />
+              </i>{" "}
+              Gratuito
+            </p>
+          )}
+          {course.payed && (
+            <p className="flex items-center gap-2">
+              {" "}
+              <i className="text-green-800">
+                <FaMoneyBill />
+              </i>{" "}
+              {course.price} Kz
+            </p>
+          )}
+        </div>
         <h4 className="border-l-2 border-l-sky-700 px-2 mb-2">
           {course.duration}
         </h4>
       </CourseCard1.Header>
       <CourseCard1.Content>
-        <p>
+        <p className="text-justify">
           {expanded
             ? course.description
             : course.description.length < maxInfoBodyLength
             ? course.description
             : `${course.description.substring(0, maxInfoBodyLength)}...`}
         </p>
-        {!course.payed && (
-          <p className="flex items-center gap-2">
-            {" "}
-            <i className="text-amber-600">
-              <FaGift />
-            </i>{" "}
-            Gratuito
-          </p>
-        )}
-        {course.payed && (
-          <p className="flex items-center gap-2">
-            {" "}
-            <i className="text-green-800">
-              <FaMoneyBill />
-            </i>{" "}
-            {course.price} Kz
-          </p>
-        )}
       </CourseCard1.Content>
       <CourseCard1.Footer>
         <div className="mt-4">
-          <Link to={`/inscrever-se?id=${course.id}`}  className="bg-gray-700 hover:bg-gray-800 transition-all cursor-pointer p-2 text-gray-50 rounded-md">
+          <Link
+            to={`/inscrever-se?id=${course.id}`}
+            className="bg-gray-700 hover:bg-gray-800 transition-all cursor-pointer p-2 text-gray-50 rounded-md"
+          >
             mais...
           </Link>
         </div>

@@ -13,7 +13,7 @@ export default function Enroll() {
   const id = searchParams.get("id");
   const [loading, setLoading] = useState<boolean>(false);
   const [course, setCourse] = useState<ICourse | null>(null);
-  const {state} = useAuth()
+  const { state } = useAuth();
 
   useEffect(() => {
     async function getCourse() {
@@ -40,11 +40,6 @@ export default function Enroll() {
           <h4 className="border-l-2 border-l-sky-700 px-2 mb-2">
             {course?.duration}
           </h4>
-        </CourseCard.Header>
-        <CourseCard.Content>
-          <p>
-            {course?.description}
-          </p>
           {!course?.payed && (
             <p className="flex items-center gap-2">
               {" "}
@@ -63,10 +58,21 @@ export default function Enroll() {
               {course?.price} Kz
             </p>
           )}
+        </CourseCard.Header>
+        <CourseCard.Content>
+          <div className="flex flex-col gap-2">
+            {course?.description.split("\n").map((p, i) => (
+              <p key={i}>{p}</p>
+            ))}
+          </div>
         </CourseCard.Content>
         <CourseCard.Footer className="mt-4">
-            {state.user?.role === "STUDENT" && <RegisterEnrollDialog id={course?.id!}/>}
-            {!state.isAuthenticated && <h4 className="text-gray-400">Inicie sessão para se inscrever</h4>}
+          {state.user?.role === "STUDENT" && (
+            <RegisterEnrollDialog id={course?.id!} />
+          )}
+          {!state.isAuthenticated && (
+            <h4 className="text-gray-400">Inicie sessão para se inscrever</h4>
+          )}
         </CourseCard.Footer>
       </CourseCard.Container>
     </div>
