@@ -4,11 +4,13 @@ import type { ICourse } from "../../types/course";
 import { CourseCard } from "../../components/ui/Cards";
 import { Loader } from "@/components/ui/Loader";
 import NoContent from "@/components/ui/NoContent";
-import { MdInbox } from "react-icons/md";
+import { MdInbox, MdQuestionMark } from "react-icons/md";
+import { FaSearch } from "react-icons/fa";
 
 export default function Courses() {
   const [courses, setCourses] = useState<ICourse[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [searchKey, setSearchKey] = useState<string>("");
 
   useEffect(() => {
     async function getAllCourses() {
@@ -33,11 +35,45 @@ export default function Courses() {
   if (courses?.length === 0)
     return <NoContent title="Sem Cursos" icon={<MdInbox />} />;
 
+  const filteredCourses = searchKey
+    ? courses.filter((course) =>
+        course.title.toLowerCase().includes(searchKey.toLowerCase())
+      )
+    : courses;
+
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 p-8 min-h-full">
-      {courses?.map((course) => (
-        <CourseCard key={course.id} course={course} expanded={false} />
-      ))}
-    </div>
+    <main className="py-4 sm:p-8">
+      <div className="px-4 flex gap-2 flex-col">
+        <h1 className="text-2xl">Cursos</h1>
+
+        <form action="" className="flex">
+          <div className="flex bg-gray-200 py-2 px-4 rounded-2xl justify-between">
+            <input
+              type="text"
+              className="outline-none"
+              placeholder="Pesquisar"
+              value={searchKey!}
+              onChange={(e) => setSearchKey(e.target.value)}
+            />
+            <i className="text-white bg-gray-500 p-2 rounded-full">
+              <FaSearch />
+            </i>
+          </div>
+          <select name="" id="">
+            <option value="">Op1</option>
+            <option value="">Op2</option>
+          </select>
+        </form>
+      </div>
+      {filteredCourses.length !== 0 ? (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 p-8 min-h-full">
+          {filteredCourses?.map((course) => (
+            <CourseCard key={course.id} course={course} expanded={false} />
+          ))}
+        </div>
+      ) : (
+        <NoContent title="Sem Resultados" icon={<MdQuestionMark />} />
+      )}
+    </main>
   );
 }

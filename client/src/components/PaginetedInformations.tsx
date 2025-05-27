@@ -10,6 +10,7 @@ import {
 import type { IInformation } from "@/types/information";
 import { useState } from "react";
 import { InformationCard } from "./ui/Cards";
+import { FaSearch } from "react-icons/fa";
 
 const itemsPerPage = 3;
 

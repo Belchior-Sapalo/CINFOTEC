@@ -39,6 +39,7 @@ export default function Enrollments() {
     await handleGetAllEnrollments()
       .then((res) => {
         setEnrollments(res.data);
+        console.log(res.data)
       })
       .catch((err) => {
         console.log(err);

@@ -1592,6 +1592,7 @@ export function RegisterAdminDialog({ onReload }: { onReload: Function }) {
   });
 
   async function registerAdmin(e: React.FormEvent<HTMLFormElement>) {
+    setLoading(true);
     e.preventDefault();
     await handleRegisterAdmin(registerBody)
       .then((res) => {
@@ -1790,6 +1791,7 @@ export function DeleteAdminAccountDialog({
   const [error, setError] = useState<string | undefined>(undefined);
   const [success, setSuccess] = useState<string | undefined>(undefined);
   async function deleteAccount() {
+    setLoading(true);
     await handleDeleteAdminAccount(id)
       .then((res) => {
         onReload();
@@ -1843,7 +1845,11 @@ export function DeleteAdminAccountDialog({
           <button
             disabled={loading}
             onClick={() => deleteAccount()}
-            className={`${loading ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-red-600 text-white rounded p-2 cursor-pointer self-start hover:bg-red-700"}`}
+            className={`${
+              loading
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-red-600 text-white rounded p-2 cursor-pointer self-start hover:bg-red-700"
+            }`}
           >
             {loading ? "Eliminando..." : "Eliminar"}
           </button>
@@ -1858,8 +1864,10 @@ type ViewFileDialogProps = {
   type: string;
 };
 
-export const ViewFileDialog: React.FC<ViewFileDialogProps> = ({ downloadLink, type }) => {
-
+export const ViewFileDialog: React.FC<ViewFileDialogProps> = ({
+  downloadLink,
+  type,
+}) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -1899,3 +1907,100 @@ export const ViewFileDialog: React.FC<ViewFileDialogProps> = ({ downloadLink, ty
     </Dialog>
   );
 };
+
+export function RecoverPasswordDialog() {
+  const [name, setName] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  async function updateName() {
+    if (!name) {
+      setError("O nome não pode ser vazio");
+      setSuccess(null);
+      setTimeout(() => {
+        setError(null);
+        setSuccess(null);
+      }, 3000);
+      return;
+    }
+    setLoading(true);
+    await handleUpdateName({ name: name.trimEnd().trimStart() })
+      .then((res) => {
+        setSuccess("Nome atualizado com sucesso");
+        setError(null);
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (err.response.data) {
+          setError(err.response.data.message);
+          setSuccess(null);
+        } else {
+          setError("Erro ao atualizar nome");
+          setSuccess(null);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+        setTimeout(() => {
+          setError(null);
+          setSuccess(null);
+        }, 3000);
+      });
+  }
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <div className="flex items-start gap-2">
+          <span>Esqueceu a senha?{" "}</span>
+          <button className="text-sky-900 self-start cursor-pointer" type="button">
+            Clique aqui
+          </button>
+        </div>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <div className="mt-8">
+          {error && (
+            <div className="bg-red-500 text-white p-2 rounded mb-4">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="bg-green-500 text-white p-2 rounded mb-4">
+              {success}
+            </div>
+          )}
+        </div>
+        <DialogHeader>
+          <DialogTitle>Recuperar senha</DialogTitle>
+          <DialogDescription>
+            Insira o seu email e lhe enviaremos um email se existir!
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <label htmlFor="email" className="text-right">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="col-span-3 outline-none p-2 rounded border border-gray-400 focus:border-gray-600"
+              placeholder="Insira seu email"
+            />
+          </div>
+        </div>
+        <DialogFooter className="flex">
+          <button
+            onClick={() => updateName()}
+            className="bg-sky-700 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-800"
+          >
+            {loading ? "Aguarde..." : "Enviar"}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

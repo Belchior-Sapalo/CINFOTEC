@@ -10,7 +10,7 @@ export const FileViewer: React.FC<FileViewerProps> = ({ downloadLink }) => {
     const [loading, setLoading] = useState(true);
   
     if (!extension) {
-      return <p>Extensão do ficheiro não encontrada.</p>;
+      return <p>{downloadLink}</p>;
     }
   
     const decodedLink = decodeURIComponent(downloadLink);
@@ -22,7 +22,6 @@ export const FileViewer: React.FC<FileViewerProps> = ({ downloadLink }) => {
     if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension)) {
       return (
         <div>
-  
           {loading && <Loader label='Carregando arquivo...' className='flex flex-col gap-1 items-center justify-center'/>}
   
           <img

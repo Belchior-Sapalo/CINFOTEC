@@ -70,10 +70,10 @@ function MobileNavBar() {
                 !link.roles.includes(Role.PUBLIC)
                   ? "hidden"
                   : "flex"
-              } items-center border-b border-gray-400`}
+              } items-center`}
               key={link.id}
             >
-              <i className="px-3 py-3.5 text-2xl text-gray-500">
+              <i className="px-3 py-3.5 text-xl text-gray-500">
                 {getIcon(link.label)}
               </i>
               <NavLink
@@ -90,21 +90,6 @@ function MobileNavBar() {
             </li>
           ))}
         </ul>
-        <form action="" className="mt-8">
-          <div className="flex bg-gray-200 py-2 px-4 rounded-2xl justify-between">
-            <input
-              type="text"
-              className="outline-none"
-              placeholder="Pesquisar"
-            />
-            <button
-              className="text-white cursor-pointer bg-gray-500 p-2 rounded-full"
-              onClick={toggleNav}
-            >
-              <FaSearch />
-            </button>
-          </div>
-        </form>
         <p className="fixed bottom-5 text-gray-400 px-4 text-[12px]">
           &copy;CINFOTEC, 2025
         </p>
@@ -161,9 +146,6 @@ function DeskNavBar() {
         </ul>
       </nav>
       <div className="flex gap-2">
-        <button className="text-white bg-gray-500 p-2 rounded-full cursor-pointer">
-          <FaSearch />
-        </button>
         <GoToAuthButton
           className={`${
             state.isAuthenticated ? "hidden" : "flex"

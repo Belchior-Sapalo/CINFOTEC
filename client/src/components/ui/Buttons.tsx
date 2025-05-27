@@ -24,7 +24,7 @@ export function SubmitButton({
     <button
       disabled={loading}
       type="submit"
-      className="bg-sky-800 hover:bg-sky-900 transition-all text-white font-bold py-1 px-4 rounded cursor-pointer"
+      className={`${loading ? "bg-gray-300 text-gray-500 font-bold py-1 px-4 rounded cursor-not-allowed" : "bg-sky-800 hover:bg-sky-900 transition-all text-white font-bold py-1 px-4 rounded cursor-pointer"}`}
     >
       {loading ? actionLabel : label}
     </button>

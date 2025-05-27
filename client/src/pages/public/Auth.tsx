@@ -16,6 +16,7 @@ import { SubmitButton } from "../../components/ui/Buttons";
 import { TooltipContent, TooltipProvider } from "@radix-ui/react-tooltip";
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/contexts/AuthContext";
+import { RecoverPasswordDialog } from "@/components/ui/Dialogs";
 
 export default function Auth() {
   const [logging, setLogging] = useState<boolean>(true);
@@ -254,12 +255,7 @@ export default function Auth() {
             </div>
           )}
           {logging && (
-            <p>
-              Esqueceu a senha?{" "}
-              <Link className="text-sky-900" to="">
-                Clique aqui
-              </Link>
-            </p>
+            <RecoverPasswordDialog/>
           )}
           <div className="flex gap-2">
             <SubmitButton
@@ -274,7 +270,7 @@ export default function Auth() {
                   <Tooltip>
                     <TooltipTrigger>
                       <button
-                        type="button"
+                        type="reset"
                         disabled={loading}
                         onClick={() => handleResetForm()}
                         className="bg-sky-800 hover:bg-sky-900 transition-all text-white font-bold py-2 px-4 rounded cursor-pointer"

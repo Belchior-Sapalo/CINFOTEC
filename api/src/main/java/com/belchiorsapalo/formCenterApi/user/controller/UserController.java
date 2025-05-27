@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.belchiorsapalo.formCenterApi.user.dtos.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -50,7 +51,7 @@ public class UserController {
     //Testado, sucesso
     @PostMapping("/auth/admin/register")
     public ResponseEntity<User> registerAdmin(@Valid @RequestBody UserRegisterDTO user){
-        return ResponseEntity.ok().body(userService.register(user, true));
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.register(user, true));
     }
 
     //Testado, sucesso

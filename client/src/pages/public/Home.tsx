@@ -4,12 +4,14 @@ import type { IInformation } from "../../types/information";
 import PaginatedInformations from "@/components/PaginetedInformations";
 import { Loader } from "@/components/ui/Loader";
 import NoContent from "@/components/ui/NoContent";
-import { MdInbox } from "react-icons/md";
+import { MdInbox, MdQuestionMark } from "react-icons/md";
+import { FaSearch } from "react-icons/fa";
 
 export default function Home() {
   const [informations, setInformations] = useState<IInformation[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | undefined>(undefined);
+  const [searchKey, setSearchKey] = useState<string>("");
 
   useEffect(() => {
     async function getInformations() {
@@ -33,11 +35,38 @@ export default function Home() {
   if (informations?.length === 0)
     return <NoContent title="Sem informações" icon={<MdInbox />} />;
 
+  const filteredInformations = searchKey
+    ? informations.filter((info) =>
+        info.title.toLowerCase().includes(searchKey.toLowerCase())
+      )
+    : informations;
+
   return (
     <div>
       <div className="mt-8">
-        <h1 className="text-2xl px-8">Notícias</h1>
-        <PaginatedInformations informations={informations} />
+        <div className="px-4 flex gap-2 flex-col sm:flex-row sm:items-center">
+          <h1 className="text-2xl">Notícias</h1>
+
+          <form action="" className="">
+            <div className="flex bg-gray-200 py-2 px-4 rounded-2xl justify-between">
+              <input
+                type="text"
+                className="outline-none"
+                placeholder="Pesquisar"
+                value={searchKey}
+                onChange={(e) => setSearchKey(e.target.value)}
+              />
+              <i className="text-white bg-gray-500 p-2 rounded-full">
+                <FaSearch />
+              </i>
+            </div>
+          </form>
+        </div>
+        {filteredInformations.length !== 0 ? (
+          <PaginatedInformations informations={filteredInformations} />
+        ) : (
+          <NoContent title="Sem Resultados" icon={<MdQuestionMark />} />
+        )}
       </div>
     </div>
   );
