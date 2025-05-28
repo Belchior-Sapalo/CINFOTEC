@@ -38,14 +38,6 @@ createRoot(document.getElementById("root")!).render(
         </Route>
         <Route element={<DashboardLayout />}>
           <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <DashBoard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
             path="gerencia/estudantes"
             element={
               <ProtectedRoute>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { handleLogin, handleRegister } from "../../api/authServices";
-import { type ILogin, type IRegister } from "../../types/auth";
+import { type ILogin, type IRegister, type IUser } from "../../types/auth";
 import {
   FaEye,
   FaEyeSlash,
@@ -65,12 +65,23 @@ export default function Auth() {
     if (logging) {
       handleLogin(loginBody!)
         .then((res) => {
-          console.log(res.data);
-          login({ ...res.data, isAdmin: res.data.role === "ADMIN", isSuperAdmin: res.data.role === "SUPER" });
-          handleResetForm();
-          navigate(`${res.data.role === "ADMIN" || res.data.role === "SUPER" ? "/dashboard" : "/"}`, {
-            replace: true,
+          console.log(res.data)
+          login({
+            ...res.data,
+            isAdmin: res.data.role === "ADMIN",
+            isSuperAdmin: res.data.role === "SUPER",
           });
+          handleResetForm();
+          navigate(
+            `${
+              res.data.role === "ADMIN" || res.data.role === "SUPER"
+                ? "/gerencia/inscricoes"
+                : "/"
+            }`,
+            {
+              replace: true,
+            }
+          );
         })
         .catch((err) => {
           console.log(err.response);
@@ -179,7 +190,10 @@ export default function Auth() {
               onChange={(e) => {
                 logging
                   ? setLoginBody({ ...loginBody, email: e.target.value })
-                  : setRegisterBody({ ...registerBody, email: e.target.value });
+                  : setRegisterBody({
+                      ...registerBody,
+                      email: e.target.value.trim(),
+                    });
               }}
               placeholder="exmplo@gmail.com"
               className="auth-input"
@@ -226,7 +240,10 @@ export default function Auth() {
                 type="text"
                 value={registerBody.bi}
                 onChange={(e) =>
-                  setRegisterBody({ ...registerBody, bi: e.target.value })
+                  setRegisterBody({
+                    ...registerBody,
+                    bi: e.target.value.trim(),
+                  })
                 }
                 className="auth-input"
                 placeholder="BI"
@@ -245,7 +262,7 @@ export default function Auth() {
                 onChange={(e) =>
                   setRegisterBody({
                     ...registerBody,
-                    phoneNumber: e.target.value,
+                    phoneNumber: e.target.value.trim(),
                   })
                 }
                 className="auth-input"
@@ -254,9 +271,7 @@ export default function Auth() {
               />
             </div>
           )}
-          {logging && (
-            <RecoverPasswordDialog/>
-          )}
+          {logging && <RecoverPasswordDialog />}
           <div className="flex gap-2">
             <SubmitButton
               label={logging ? "Entrar" : "Criar conta"}

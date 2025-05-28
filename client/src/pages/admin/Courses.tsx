@@ -9,7 +9,8 @@ import { Loader } from "@/components/ui/Loader";
 import NoContent from "@/components/ui/NoContent";
 import type { ICourse } from "@/types/course";
 import { useEffect, useState } from "react";
-import { FaMoneyBill, FaGift } from "react-icons/fa";
+import { FaMoneyBill, FaGift, FaIdCard, FaPhone, FaUser } from "react-icons/fa";
+import { MdEmail } from "react-icons/md";
 
 export default function Courses() {
   const [courses, setCourses] = useState<ICourse[]>([]);
@@ -25,6 +26,7 @@ export default function Courses() {
     await handleGelAllCourses()
       .then((res) => {
         setCourses(res.data);
+        console.log(res.data);
       })
       .catch((err) => {
         console.log(err);
@@ -48,6 +50,40 @@ export default function Courses() {
       <CourseCard.Container key={course.id}>
         <CourseCard.Header>
           <h1 className="text-2xl">{course.title}</h1>
+          <div className="bg-white border rounded-lg p-4 shadow-sm space-y-2 text-sm text-gray-700">
+            <div className="flex items-center gap-1">
+              <span className="font-medium text-gray-900">
+                <FaUser />
+              </span>{" "}
+              {course.createdBy?.name || (
+                <span className="italic text-gray-400">Não informado</span>
+              )}
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="font-medium text-gray-900">
+                <MdEmail />
+              </span>{" "}
+              {course.createdBy?.email || (
+                <span className="italic text-gray-400">Não informado</span>
+              )}
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="font-medium text-gray-900">
+                <FaIdCard />
+              </span>{" "}
+              {course.createdBy?.bi || (
+                <span className="italic text-gray-400">Não informado</span>
+              )}
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="font-medium text-gray-900">
+                <FaPhone />
+              </span>{" "}
+              {course.createdBy?.phoneNumber || (
+                <span className="italic text-gray-400">Não informado</span>
+              )}
+            </div>
+          </div>
           <h4 className="border-l-2 border-l-sky-700 px-2 mb-2">
             {course.duration}
           </h4>

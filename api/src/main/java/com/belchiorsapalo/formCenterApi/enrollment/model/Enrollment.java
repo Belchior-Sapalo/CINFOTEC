@@ -2,6 +2,7 @@ package com.belchiorsapalo.formCenterApi.enrollment.model;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,6 +46,9 @@ public class Enrollment implements Serializable {
 
    @UpdateTimestamp
    private Date updatedAt;
+
+   @Column(nullable = true)
+   private LocalDateTime processedAt;
 
    @Column(nullable = false)
    private EnrollmentStatus status;

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { FaUserCircle } from "react-icons/fa";
 import { useLocation } from "react-router";
 
 export function formatedDate(date: string) {
@@ -27,3 +28,6 @@ export function getStyle(status: string) {
       return "bg-green-500";
   }
 }
+
+export const removeAccents = (str: string) =>
+  str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");

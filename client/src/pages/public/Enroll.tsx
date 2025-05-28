@@ -62,16 +62,23 @@ export default function Enroll() {
         <CourseCard.Content>
           <div className="flex flex-col gap-2">
             {course?.description.split("\n").map((p, i) => (
-              <p key={i}>{p}</p>
+              <p key={i} className="text-justify">
+                {p}
+              </p>
             ))}
           </div>
         </CourseCard.Content>
         <CourseCard.Footer className="mt-4">
-          {state.user?.role === "STUDENT" && (
+          {state.user?.role === "STUDENT" && course?.vacancies! > 0 && (
             <RegisterEnrollDialog id={course?.id!} />
           )}
           {!state.isAuthenticated && (
             <h4 className="text-gray-400">Inicie sessão para se inscrever</h4>
+          )}
+          {course?.vacancies! <= 0 && (
+            <h4 className="text-gray-400">
+              Já não existem vagas para esse curso
+            </h4>
           )}
         </CourseCard.Footer>
       </CourseCard.Container>

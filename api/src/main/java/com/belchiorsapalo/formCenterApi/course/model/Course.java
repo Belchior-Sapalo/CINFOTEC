@@ -11,17 +11,7 @@ import com.belchiorsapalo.formCenterApi.enrollment.model.Enrollment;
 import com.belchiorsapalo.formCenterApi.user.model.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -55,17 +45,27 @@ public class Course implements Serializable {
    @Column(nullable = true)
    private BigDecimal price;
 
+   @Column(nullable = false)
+   private Integer vacancies;
+
+
+
    public Course(CourseRegisterDTO courseRegisterDTO) {
       this.title = courseRegisterDTO.title();
       this.description = courseRegisterDTO.description();
       this.duration = courseRegisterDTO.duration();
-      this.price = courseRegisterDTO.price();
-      this.isPayed = courseRegisterDTO.price() != null ? true : false;
+      this.isPayed = courseRegisterDTO.payed();
+      this.price = this.isPayed ? courseRegisterDTO.price() : null;
+      this.vacancies = courseRegisterDTO.vacancies();
    }
 
    @ManyToMany
    @JoinTable(name = "tb_course_students", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "student_id"))
    private Set<User> students = new HashSet<>();
+
+   @ManyToOne
+   @JoinColumn(name = "created_by_id")
+   private User createdBy;
 
    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)

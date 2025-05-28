@@ -1,6 +1,7 @@
 package com.belchiorsapalo.formCenterApi.enrollment.service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -85,22 +86,30 @@ public class EnrollmentService {
       var enrollmentToApprove = enrollmentRepository.findById(id)
             .orElseThrow(() -> new AnotherApiException(
                   "Ocorreu um erro ao aprovar inscrição"));
-      utilEnrollStudentAndUpdateTables(enrollmentToApprove);
+      processEnrollment(enrollmentToApprove);
       enrollmentToApprove.setStatus(EnrollmentStatus.APPROVED);
+      enrollmentToApprove.setProcessedAt(LocalDateTime.now());
       return enrollmentRepository.save(enrollmentToApprove);
    }
 
-   private void utilEnrollStudentAndUpdateTables(Enrollment enrollmentToApprove) {
-      var enrollCourse = courseRepository.findById(enrollmentToApprove.getCourse().getId())
-            .orElseThrow(() -> new AnotherApiException(
-                  "Ocorreu um erro ao processar a inscrição"));
-      var enrollStudent = userRepository.findById(enrollmentToApprove.getStudent().getId())
-            .orElseThrow(() -> new AnotherApiException(
-                  "Ocorreu um erro ao processar a inscrição"));
-      enrollCourse.getStudents().add(enrollStudent);
-      enrollStudent.getCourses().add(enrollCourse);
-      userRepository.save(enrollStudent);
-      courseRepository.save(enrollCourse);
+   private void processEnrollment(Enrollment enrollment) {
+      Course course = courseRepository.findById(enrollment.getCourse().getId())
+              .orElseThrow(() -> new AnotherApiException("Curso não encontrado ao processar inscrição"));
+
+      if (course.getVacancies() <= 0) {
+         throw new AnotherApiException("Já não existem vagas para esse curso");
+      }
+
+      User student = userRepository.findById(enrollment.getStudent().getId())
+              .orElseThrow(() -> new AnotherApiException("Estudante não encontrado ao processar inscrição"));
+
+      course.getStudents().add(student);
+      student.getCourses().add(course);
+
+      course.setVacancies(course.getVacancies() - 1);
+
+      userRepository.save(student);
+      courseRepository.save(course);
    }
 
    public Enrollment rejectEnrollment(UUID id) {
@@ -108,6 +117,7 @@ public class EnrollmentService {
             .orElseThrow(() -> new AnotherApiException(
                   "Ocorreu um erro ao rejeitar a inscrição"));
       enrollmentToReject.setStatus(EnrollmentStatus.REJECTED);
+      enrollmentToReject.setProcessedAt(LocalDateTime.now());
       return enrollmentRepository.save(enrollmentToReject);
    }
 

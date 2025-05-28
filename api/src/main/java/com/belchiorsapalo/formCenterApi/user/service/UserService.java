@@ -67,7 +67,7 @@ public class UserService implements UserDetailsService {
         var auth = authenticationManager.authenticate(usernamepassword);
         String token = tokenService.generateToken((User) auth.getPrincipal());
         var authenticatedUser = (User) auth.getPrincipal();
-        return new UserLoginResponseDTO(token, authenticatedUser.getRole(), authenticatedUser.getId());
+        return new UserLoginResponseDTO(token, authenticatedUser.getRole(), authenticatedUser.getId(), authenticatedUser.getName());
     }
 
     public List<User> getAll(boolean students, String adminBi) {

@@ -82,9 +82,9 @@ export function InformationCard({
           <div className="mt-4">
             <Link
               to={`/informacao?id=${information.id}`}
-              className="bg-gray-700 hover:bg-gray-800 transition-all cursor-pointer p-2 text-gray-50 rounded-md"
+              className="text-gray-600"
             >
-              mais...
+              Ler mais...
             </Link>
           </div>
         )}
@@ -94,11 +94,9 @@ export function InformationCard({
 }
 
 export function CourseCard({
-  course,
-  expanded,
+  course
 }: {
-  course: ICourse;
-  expanded: boolean;
+  course: ICourse
 }) {
   const maxInfoBodyLength = 100;
   return (
@@ -131,9 +129,7 @@ export function CourseCard({
       </CourseCard1.Header>
       <CourseCard1.Content>
         <p className="text-justify">
-          {expanded
-            ? course.description
-            : course.description.length < maxInfoBodyLength
+          {course.description.length <= maxInfoBodyLength
             ? course.description
             : `${course.description.substring(0, maxInfoBodyLength)}...`}
         </p>
@@ -142,9 +138,9 @@ export function CourseCard({
         <div className="mt-4">
           <Link
             to={`/inscrever-se?id=${course.id}`}
-            className="bg-gray-700 hover:bg-gray-800 transition-all cursor-pointer p-2 text-gray-50 rounded-md"
+            className="text-gray-600"
           >
-            mais...
+            Ver mais...
           </Link>
         </div>
       </CourseCard1.Footer>

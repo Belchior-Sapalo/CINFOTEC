@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import com.belchiorsapalo.formCenterApi.user.model.User;
+import com.belchiorsapalo.formCenterApi.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,17 +24,20 @@ import com.belchiorsapalo.formCenterApi.files.service.FileService;
 public class CourseService {
 
    private final CourseRepository courseRepository;
+   private final UserRepository userRepository;
    private final FileService fileService;
 
    @Autowired
-   public CourseService(CourseRepository courseRepository, FileService fileService) {
+   public CourseService(CourseRepository courseRepository, FileService fileService, UserRepository userRepository) {
       this.courseRepository = courseRepository;
       this.fileService = fileService;
+      this.userRepository = userRepository;
    }
 
-   public Course register(CourseRegisterDTO courseDTO) {
+   public Course register(CourseRegisterDTO courseDTO, User createdBy) {
       if (courseRepository.existsByTitle(courseDTO.title())) throw new ResourceAlreadyExistsException("Já existe um curso com esse título");
       Course createdCourse = new Course(courseDTO);
+      createdCourse.setCreatedBy((createdBy));
       return courseRepository.save(createdCourse);
    }
 
@@ -50,8 +55,11 @@ public class CourseService {
       if (!courseDTO.duration().equals(courseToUpdate.getDuration()))
          courseToUpdate.setDuration(courseDTO.duration());
 
-      courseToUpdate.setPayed(courseDTO.price() != null ? true : false);
-      courseToUpdate.setPrice(courseDTO.price());
+      if (!courseDTO.vacancies().equals(courseToUpdate.getVacancies()))
+         courseToUpdate.setVacancies(courseDTO.vacancies());
+
+      courseToUpdate.setPayed(courseDTO.payed());
+      courseToUpdate.setPrice(courseDTO.payed() ? courseDTO.price() : null);
 
       return courseRepository.save(courseToUpdate);
    }
@@ -61,9 +69,8 @@ public class CourseService {
    }
 
    public Course getOne(UUID id) {
-      var foundedCourse = courseRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Curso não encontrado"));
-      return foundedCourse;
+       return courseRepository.findById(id)
+             .orElseThrow(() -> new ResourceNotFoundException("Curso não encontrado"));
    }
 
    public void delete(UUID id) {
@@ -71,19 +78,27 @@ public class CourseService {
       if (foundedCourse.isEmpty())
          throw new AnotherApiException("Ocorreu um erro ao eliminar curso");
       Course courseToDelete = foundedCourse.get();
+      removeCourseFromStudents(courseToDelete);
       deleteCourseEnrollmentsFiles(courseToDelete.getEnrollments());
       courseRepository.deleteById(id);
    }
 
    private void deleteCourseEnrollmentsFiles(Set<Enrollment> enrollmentList) {
-      enrollmentList.stream().forEach(enroll -> {
-         enroll.getFiles().stream().forEach(file -> {
+      enrollmentList.forEach(enroll -> {
+         enroll.getFiles().forEach(file -> {
             try {
                fileService.delete(file.getFileName());
             } catch (IOException e) {
                   throw new AnotherApiException("Ocorreu um erro ao eliminar curso");
             }
          });
+      });
+   }
+
+   private void removeCourseFromStudents(Course courseToDelete) {
+      courseToDelete.getStudents().forEach(student -> {
+         student.getCourses().remove(courseToDelete);
+         userRepository.save(student);
       });
    }
 }

@@ -21,7 +21,7 @@ export interface IRegister {
 }
 
 export interface IUser {
-  id: string;
+  id?: string;
   name?: string,
   email?: string,
   bi?: string,

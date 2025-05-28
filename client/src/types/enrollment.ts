@@ -30,5 +30,6 @@ export interface IEnrollment {
   status: string;
   files: IFiles[];
   student: IStudent;
+  processedAt?: string,
   createdAt: string;
 }

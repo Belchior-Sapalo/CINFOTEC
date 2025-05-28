@@ -60,6 +60,7 @@ import { SubmitButton } from "./Buttons";
 import type { IRegister } from "@/types/auth";
 import { handleRegisterAdmin } from "@/api/authServices";
 import FileViewer from "../FileViewer";
+import Information from "@/pages/public/Information";
 
 interface IDialogProps {
   onReload: () => void;
@@ -67,7 +68,7 @@ interface IDialogProps {
 }
 
 export function EditNameDialog({ onReload, currentValue }: IDialogProps) {
-  const [name, setName] = useState<string>("");
+  const [name, setName] = useState<string>(currentValue!);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -170,7 +171,11 @@ export function EditNameDialog({ onReload, currentValue }: IDialogProps) {
         <DialogFooter className="flex">
           <button
             onClick={() => updateName()}
-            className="bg-sky-700 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-800"
+            className={`${
+              loading
+                ? "bg-gray-300 text-gray-500 font-bold py-1 px-4 rounded cursor-not-allowed"
+                : "bg-sky-800 hover:bg-sky-900 transition-all text-white font-bold py-1 px-4 rounded cursor-pointer"
+            } self-start`}
           >
             {loading ? "Aguarde..." : "Salvar"}
           </button>
@@ -181,7 +186,7 @@ export function EditNameDialog({ onReload, currentValue }: IDialogProps) {
 }
 
 export function EditEmailDialog({ onReload, currentValue }: IDialogProps) {
-  const [email, setEmail] = useState<string>("");
+  const [email, setEmail] = useState<string>(currentValue!);
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -193,6 +198,15 @@ export function EditEmailDialog({ onReload, currentValue }: IDialogProps) {
   const togglePass = () => setShowPassword((prev) => !prev);
 
   async function updateEmail() {
+    if (!password) {
+      setError("Precisa inserir a senha para continuar");
+      setSuccess(null);
+      setTimeout(() => {
+        setError(null);
+        setSuccess(null);
+      }, 3000);
+      return;
+    }
     if (!email) {
       setError("O email não pode ser vazio");
       setSuccess(null);
@@ -291,18 +305,26 @@ export function EditEmailDialog({ onReload, currentValue }: IDialogProps) {
             />
           </div>
         </div>
-        <DialogFooter className="flex">
+        <DialogFooter className="flex flex-row">
           <button
             disabled={loading}
             onClick={() => updateEmail()}
-            className="bg-sky-700 text-white rounded p-2 cursor-pointer hover:bg-sky-800"
+            className={`${
+              loading
+                ? "bg-gray-300 text-gray-500 font-bold py-1 px-4 rounded cursor-not-allowed"
+                : "bg-sky-800 hover:bg-sky-900 transition-all text-white font-bold py-1 px-4 rounded cursor-pointer"
+            } `}
           >
             {loading ? "Aguarde..." : "Salvar"}
           </button>
 
           <button
             onClick={togglePass}
-            className="bg-sky-700 text-white rounded p-2 cursor-pointer hover:bg-sky-800"
+            className={`${
+              loading
+                ? "bg-gray-300 text-gray-500 font-bold py-1 px-4 rounded cursor-not-allowed"
+                : "bg-sky-800 hover:bg-sky-900 transition-all text-white font-bold py-1 px-4 rounded cursor-pointer"
+            } `}
           >
             {showPassword ? "Ocultar senha" : "Mostrar senha"}
           </button>
@@ -313,12 +335,21 @@ export function EditEmailDialog({ onReload, currentValue }: IDialogProps) {
 }
 
 export function EditBiDialog({ onReload, currentValue }: IDialogProps) {
-  const [bi, setBi] = useState<string>("");
+  const [bi, setBi] = useState<string>(currentValue!);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
   async function updateBi() {
+    if (!bi) {
+      setError("O BI não pode estar vazio");
+      setSuccess(null);
+      setTimeout(() => {
+        setError(null);
+        setSuccess(null);
+      }, 3000);
+      return;
+    }
     if (bi === currentValue) {
       setError("O BI não pode ser o mesmo");
       setSuccess(null);
@@ -398,7 +429,11 @@ export function EditBiDialog({ onReload, currentValue }: IDialogProps) {
         <DialogFooter className="flex">
           <button
             onClick={() => updateBi()}
-            className="bg-sky-700 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-800"
+            className={`${
+              loading
+                ? "bg-gray-300 text-gray-500 font-bold py-1 px-4 rounded cursor-not-allowed"
+                : "bg-sky-800 hover:bg-sky-900 transition-all text-white font-bold py-1 px-4 rounded cursor-pointer"
+            } self-start`}
           >
             {loading ? "Aguarde..." : "Salvar"}
           </button>
@@ -409,12 +444,21 @@ export function EditBiDialog({ onReload, currentValue }: IDialogProps) {
 }
 
 export function EditPhoneDialog({ onReload, currentValue }: IDialogProps) {
-  const [phone, setPhone] = useState<string>("");
+  const [phone, setPhone] = useState<string>(currentValue!);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
   async function updatePhone() {
+    if (!phone) {
+      setError("O telefone não pode star vazio");
+      setSuccess(null);
+      setTimeout(() => {
+        setError(null);
+        setSuccess(null);
+      }, 3000);
+      return;
+    }
     if (phone === currentValue) {
       setError("O telefone não pode ser o mesmo");
       setSuccess(null);
@@ -493,7 +537,11 @@ export function EditPhoneDialog({ onReload, currentValue }: IDialogProps) {
         <DialogFooter className="flex">
           <button
             onClick={() => updatePhone()}
-            className="bg-sky-700 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-800"
+            className={`${
+              loading
+                ? "bg-gray-300 text-gray-500 font-bold py-1 px-4 rounded cursor-not-allowed"
+                : "bg-sky-800 hover:bg-sky-900 transition-all text-white font-bold py-1 px-4 rounded cursor-pointer"
+            } self-start`}
           >
             {loading ? "Aguarde..." : "Salvar"}
           </button>
@@ -748,7 +796,11 @@ export function DeleteCourseDialog({
           <button
             disabled={loading}
             onClick={() => deleteCourse()}
-            className="bg-red-600 text-white rounded p-2 cursor-pointer self-start hover:bg-red-700"
+            className={`${
+              loading
+                ? "bg-gray-300 text-gray-500 font-bold py-1 px-4 rounded cursor-not-allowed"
+                : "bg-red-600 text-white rounded p-1 cursor-pointer self-start hover:bg-red-700"
+            }`}
           >
             {loading ? "Eliminando..." : "Continuar"}
           </button>
@@ -756,6 +808,37 @@ export function DeleteCourseDialog({
       </DialogContent>
     </Dialog>
   );
+}
+
+interface ValidationResult {
+  valid: boolean;
+  errors: Record<string, string>;
+}
+
+function validateCourse(course: ICourse): ValidationResult {
+  const errors: Record<string, string> = {};
+
+  if (!course.title || course.title.trim().length < 3) {
+    errors.title = "O título é obrigatório e deve ter pelo menos 3 caracteres.";
+  }
+
+  if (!course.description || course.description.trim().length < 10) {
+    errors.description =
+      "A descrição é obrigatória e deve ter pelo menos 10 caracteres.";
+  }
+
+  if (!course.duration || course.duration.trim().length === 0) {
+    errors.duration = "A duração é obrigatória.";
+  }
+
+  if (course.payed && (isNaN(course.price) || course.price < 1)) {
+    errors.price = "Informe um preço válido (maior que 0) para cursos pagos.";
+  }
+
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors,
+  };
 }
 
 export function EditCourseDialog({
@@ -772,8 +855,9 @@ export function EditCourseDialog({
     title: data.title,
     description: data.description,
     duration: data.duration,
-    payed: false,
+    payed: data.payed,
     price: data.price,
+    vacancies: data.vacancies,
   };
 
   const [formData, setFormData] = useState<ICourse>(initialValues);
@@ -782,6 +866,19 @@ export function EditCourseDialog({
   const [success, setSuccess] = useState<string | null>(null);
 
   async function updateCourse() {
+    const result = validateCourse(formData);
+
+    if (!result.valid) {
+      const firstError = Object.values(result.errors)[0];
+      setError(firstError);
+      setTimeout(() => {
+        setError(null);
+        setSuccess(null);
+      }, 2000);
+      return;
+    }
+    setError(null);
+
     setLoading(true);
     await handleUpdateCourse({ id, data: formData })
       .then((res) => {
@@ -828,8 +925,10 @@ export function EditCourseDialog({
           <DialogDescription></DialogDescription>
         </DialogHeader>
 
-        <form action="" className="flex flex-col gap-4">
+        <form action="" className="flex flex-col gap-2">
+          <label htmlFor="title">Título</label>
           <input
+            id="title"
             className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
             type="text"
             placeholder="Título"
@@ -838,6 +937,8 @@ export function EditCourseDialog({
               setFormData({ ...formData, title: e.target.value })
             }
           />
+
+          <label htmlFor="description">Descrição</label>
           <textarea
             className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
             placeholder="Descrição"
@@ -846,6 +947,9 @@ export function EditCourseDialog({
               setFormData({ ...formData, description: e.target.value })
             }
           />
+
+          <label htmlFor="duraction">Duração</label>
+
           <input
             className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
             type="text"
@@ -855,25 +959,56 @@ export function EditCourseDialog({
               setFormData({ ...formData, duration: e.target.value })
             }
           />
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={formData.payed}
+              onChange={(e) =>
+                setFormData({ ...formData, payed: e.target.checked })
+              }
+            />
+            Curso pago
+          </label>
+
+          {formData.payed && (
+            <>
+              <label htmlFor="price">Preço</label>
+
+              <input
+                id="price"
+                className="input-no-spin outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
+                type="number"
+                placeholder="Preço"
+                value={formData.price}
+                onChange={(e) =>
+                  setFormData({ ...formData, price: e.target.valueAsNumber })
+                }
+              />
+            </>
+          )}
+          <label htmlFor="vacancies">Número de vagas</label>
+
           <input
-            className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
+            id="vacancies"
+            className="input-no-spin outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
             type="number"
-            placeholder="Preço"
-            value={formData.price}
+            placeholder="Vagas"
+            value={formData.vacancies}
             onChange={(e) =>
-              setFormData({ ...formData, price: e.target.valueAsNumber })
+              setFormData({ ...formData, vacancies: e.target.valueAsNumber })
             }
           />
-          <p>
-            Obs: Se deixar o campo de preço vazio o curso será salvo como
-            gratuito
-          </p>
         </form>
         <DialogFooter className="flex">
           <button
             disabled={loading}
             onClick={() => updateCourse()}
-            className="bg-sky-600 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-700"
+            className={`${
+              loading
+                ? "bg-gray-300 text-gray-500 font-bold py-1 px-4 rounded cursor-not-allowed"
+                : "bg-sky-600 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-700"
+            }`}
           >
             {loading ? "Atualizando..." : "Atualizar"}
           </button>
@@ -890,6 +1025,7 @@ export function CreateCourseDialog({ onReload }: { onReload: Function }) {
     description: "",
     duration: "",
     payed: false,
+    vacancies: 0,
     price: 0,
   };
 
@@ -899,6 +1035,19 @@ export function CreateCourseDialog({ onReload }: { onReload: Function }) {
   const [success, setSuccess] = useState<string | null>(null);
 
   async function createCourse() {
+    const result = validateCourse(formData);
+
+    if (!result.valid) {
+      const firstError = Object.values(result.errors)[0];
+      setError(firstError);
+      setTimeout(() => {
+        setError(null);
+        setSuccess(null);
+      }, 2000);
+      return;
+    }
+    setError(null);
+
     setLoading(true);
     await handleCreateCourse({ data: formData })
       .then((res) => {
@@ -945,8 +1094,12 @@ export function CreateCourseDialog({ onReload }: { onReload: Function }) {
           <DialogDescription></DialogDescription>
         </DialogHeader>
 
-        <form action="" className="flex flex-col gap-4">
+        <form action="" className="flex flex-col gap-2">
+          <label htmlFor="title">
+            Título<sup className="text-red-500">*</sup>
+          </label>
           <input
+            id="title"
             className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
             type="text"
             placeholder="Título"
@@ -955,7 +1108,13 @@ export function CreateCourseDialog({ onReload }: { onReload: Function }) {
               setFormData({ ...formData, title: e.target.value })
             }
           />
+
+          <label htmlFor="description">
+            Descrição<sup className="text-red-500">*</sup>
+          </label>
+
           <textarea
+            id="description"
             className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
             placeholder="Descrição"
             value={formData.description}
@@ -963,7 +1122,13 @@ export function CreateCourseDialog({ onReload }: { onReload: Function }) {
               setFormData({ ...formData, description: e.target.value })
             }
           />
+
+          <label htmlFor="duraction">
+            Duração<sup className="text-red-500">*</sup>
+          </label>
+
           <input
+            id="duraction"
             className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
             type="text"
             placeholder="Duração"
@@ -972,25 +1137,59 @@ export function CreateCourseDialog({ onReload }: { onReload: Function }) {
               setFormData({ ...formData, duration: e.target.value })
             }
           />
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={formData.payed}
+              onChange={(e) =>
+                setFormData({ ...formData, payed: e.target.checked })
+              }
+            />
+            Curso pago
+          </label>
+
+          {formData.payed && (
+            <>
+              <label htmlFor="price">
+                Preço<sup className="text-red-500">*</sup>
+              </label>
+              <input
+                id="price"
+                className="input-no-spin outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
+                type="number"
+                placeholder="Preço"
+                value={formData.price}
+                onChange={(e) =>
+                  setFormData({ ...formData, price: e.target.valueAsNumber })
+                }
+              />
+            </>
+          )}
+          <label htmlFor="vacancies">
+            Número de vagas<sup className="text-red-500">*</sup>
+          </label>
           <input
-            className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
+            id="vacancies"
+            className="input-no-spin outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
             type="number"
             placeholder="Preço"
-            value={formData.price}
+            value={formData.vacancies}
             onChange={(e) =>
-              setFormData({ ...formData, price: e.target.valueAsNumber })
+              setFormData({ ...formData, vacancies: e.target.valueAsNumber })
             }
           />
-          <p>
-            Obs: Se deixar o campo de preço vazio o curso será salvo como
-            gratuito
-          </p>
         </form>
+
         <DialogFooter className="flex">
           <button
             disabled={loading}
             onClick={() => createCourse()}
-            className="bg-sky-600 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-700"
+            className={`${
+              loading
+                ? "bg-gray-300 text-gray-500 font-bold py-1 px-4 rounded cursor-not-allowed"
+                : "bg-sky-600 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-700"
+            }`}
           >
             {loading ? "Adicionando..." : "Adicionar"}
           </button>
@@ -1064,7 +1263,11 @@ export function DeleteInfoDialog({
           <button
             disabled={loading}
             onClick={() => deleteInformation()}
-            className="bg-red-600 text-white rounded p-1 cursor-pointer self-start hover:bg-red-700"
+            className={`${
+              loading
+                ? "bg-gray-300 text-gray-500 font-bold py-1 px-4 rounded cursor-not-allowed"
+                : "bg-red-600 text-white rounded p-1 cursor-pointer self-start hover:bg-red-700"
+            }`}
           >
             {loading ? "Eliminando..." : "Continuar"}
           </button>
@@ -1072,6 +1275,33 @@ export function DeleteInfoDialog({
       </DialogContent>
     </Dialog>
   );
+}
+
+interface ValidationResult {
+  valid: boolean;
+  errors: Record<string, string>;
+}
+
+function validateInformation(information: IInformation): ValidationResult {
+  const errors: Record<string, string> = {};
+
+  if (!information.title || information.title.trim().length < 3) {
+    errors.title = "O título é obrigatório e deve ter pelo menos 3 caracteres.";
+  }
+
+  if (!information.category || information.category.trim().length === 0) {
+    errors.category = "A categoria é obrigatória.";
+  }
+
+  if (!information.body || information.body.trim().length < 10) {
+    errors.body =
+      "A informação é obrigatória e deve ter pelo menos 10 caracteres.";
+  }
+
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors,
+  };
 }
 
 export function EditInfoDialog({
@@ -1097,6 +1327,18 @@ export function EditInfoDialog({
   const [success, setSuccess] = useState<string | null>(null);
 
   async function updateInfo() {
+    const result = validateInformation(formData);
+
+    if (!result.valid) {
+      const firstError = Object.values(result.errors)[0];
+      setError(firstError);
+      setTimeout(() => {
+        setError(null);
+        setSuccess(null);
+      }, 2000);
+      return;
+    }
+    setError(null);
     setLoading(true);
     await handleUpdateInformation({ id: data.id, data: formData })
       .then((res) => {
@@ -1174,7 +1416,11 @@ export function EditInfoDialog({
           <button
             disabled={loading}
             onClick={() => updateInfo()}
-            className="bg-sky-600 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-700"
+            className={`${
+              loading
+                ? "bg-gray-300 text-gray-500 font-bold py-1 px-4 rounded cursor-not-allowed"
+                : "bg-sky-600 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-700"
+            }`}
           >
             {loading ? "Atualizando..." : "Atualizar"}
           </button>
@@ -1184,7 +1430,7 @@ export function EditInfoDialog({
   );
 }
 
-export function CreateInfoDialog({ onReload }: { onReload: Function }) {
+export async function CreateInfoDialog({ onReload }: { onReload: Function }) {
   const initialValues = {
     id: "",
     title: "",
@@ -1203,6 +1449,18 @@ export function CreateInfoDialog({ onReload }: { onReload: Function }) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   async function createInformation() {
+    const result = validateInformation(formData);
+
+    if (!result.valid) {
+      const firstError = Object.values(result.errors)[0];
+      setError(firstError);
+      setTimeout(() => {
+        setError(null);
+        setSuccess(null);
+      }, 2000);
+      return;
+    }
+    setError(null);
     setLoading(true);
     await handleCreateInformation(formData, selectedFile!)
       .then((res) => {
@@ -1228,6 +1486,14 @@ export function CreateInfoDialog({ onReload }: { onReload: Function }) {
           setSuccess(null);
         }, 3000);
       });
+  }
+
+  let fileToSend = selectedFile;
+
+  if (!fileToSend) {
+    const response = await fetch("/news.jpg");
+    const blob = await response.blob();
+    fileToSend = new File([blob], "news.jpg", { type: "image/png" });
   }
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -1266,7 +1532,11 @@ export function CreateInfoDialog({ onReload }: { onReload: Function }) {
         </DialogHeader>
 
         <form action="" className="flex flex-col gap-4">
+          <label htmlFor="title">
+            Título<sup className="text-red-500 font-bold">*</sup>
+          </label>
           <input
+            id="title"
             className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
             type="text"
             placeholder="Título"
@@ -1275,7 +1545,12 @@ export function CreateInfoDialog({ onReload }: { onReload: Function }) {
               setFormData({ ...formData, title: e.target.value })
             }
           />
+          <label htmlFor="category">
+            Categoria<sup className="text-red-500 font-bold">*</sup>
+          </label>
+
           <input
+            id="category"
             className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
             type="text"
             placeholder="Categoria"
@@ -1285,14 +1560,21 @@ export function CreateInfoDialog({ onReload }: { onReload: Function }) {
             }
           />
 
+          <label htmlFor="info">
+            Informação<sup className="text-red-500 font-bold">*</sup>
+          </label>
+
           <textarea
+            id="info"
             className="outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
             placeholder="Informação"
             value={formData.body}
             onChange={(e) => setFormData({ ...formData, body: e.target.value })}
           />
           <div className="grid w-full max-w-sm items-center gap-1.5">
-            <label htmlFor="picture">Anexo (.jpeg, .jpg, .png )</label>
+            <label htmlFor="picture" className="text-[14px]">
+              Anexo (.jpeg, .jpg, .png )
+            </label>
             <div className="flex items-center gap-2">
               {previewUrl && (
                 <div style={{ margin: "10px 0" }}>
@@ -1322,7 +1604,11 @@ export function CreateInfoDialog({ onReload }: { onReload: Function }) {
           <button
             disabled={loading}
             onClick={() => createInformation()}
-            className="bg-sky-600 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-700"
+            className={`${
+              loading
+                ? "bg-gray-300 text-gray-500 font-bold py-1 px-4 rounded cursor-not-allowed"
+                : "bg-sky-600 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-700"
+            }`}
           >
             {loading ? "Adicionando..." : "Adicionar"}
           </button>
@@ -1428,7 +1714,9 @@ export function RegisterEnrollDialog({ id }: { id: string }) {
         <form action={registerEnrollment} className="flex flex-col gap-4">
           <h1 className="text-2xl">Faça a sua inscrição</h1>
           <div className="grid w-full max-w-sm items-center gap-1.5">
-            <label htmlFor="picture">Imagem (.jpeg, .jpg, .png, .pdf)</label>
+            <label htmlFor="picture">
+              Fotografia<sup className="text-red-500">*</sup>
+            </label>
             <div className="flex items-center gap-2">
               <Input
                 id="picture"
@@ -1445,12 +1733,14 @@ export function RegisterEnrollDialog({ id }: { id: string }) {
             </div>
           </div>
           <div className="grid w-full max-w-sm items-center gap-1.5">
-            <label htmlFor="bilhete">BI (.jpeg, .jpg, .png, .pdf)</label>
+            <label htmlFor="bilhete">
+              Bilhete<sup className="text-red-500">*</sup>
+            </label>
             <div className="flex items-center gap-2">
               <Input
                 id="bilhete"
                 type="file"
-                accept=".jpeg, .jpg, .png"
+                accept=".jpeg, .jpg, .png, .pdf"
                 onChange={handleBiChange}
               />
               <button
@@ -1462,12 +1752,14 @@ export function RegisterEnrollDialog({ id }: { id: string }) {
             </div>
           </div>
           <div className="grid w-full max-w-sm items-center gap-1.5">
-            <label htmlFor="cert">Anexo (.jpeg, .jpg, .png)</label>
+            <label htmlFor="cert">
+              Certificado<sup className="text-red-500">*</sup>
+            </label>
             <div className="flex items-center gap-2">
               <Input
                 id="cert"
                 type="file"
-                accept=".jpeg, .jpg, .png"
+                accept=".jpeg, .jpg, .png, .pdf"
                 onChange={handleCertificateChange}
               />
               <button
@@ -1478,6 +1770,7 @@ export function RegisterEnrollDialog({ id }: { id: string }) {
               </button>
             </div>
           </div>
+          <small>Extensões permitidas: .jpeg, .jpg, .png, .pdf</small>
           <button
             disabled={loading}
             onClick={() => registerEnrollment()}
@@ -1872,11 +2165,11 @@ export const ViewFileDialog: React.FC<ViewFileDialogProps> = ({
     <Dialog>
       <DialogTrigger asChild>
         <button
-          className="flex flex-col cursor-pointer items-center gap-2 text-red-600 hover:text-red-800 transition-colors duration-200"
+          className="cursor-pointer flex items-center gap-1 bg-gray-200 hover:bg-gray-300 transition-all w-full p-1 rounded"
           title={`Visualizar ${type}`}
         >
-          <FaFilePdf size={20} />
-          <span>{type}</span>
+          <FaFilePdf size={20} className="text-red-500" />
+          <span className="font-bold">{type}</span>
         </button>
       </DialogTrigger>
 
@@ -1952,8 +2245,11 @@ export function RecoverPasswordDialog() {
     <Dialog>
       <DialogTrigger>
         <div className="flex items-start gap-2">
-          <span>Esqueceu a senha?{" "}</span>
-          <button className="text-sky-900 self-start cursor-pointer" type="button">
+          <span>Esqueceu a senha? </span>
+          <button
+            className="text-sky-900 self-start cursor-pointer"
+            type="button"
+          >
             Clique aqui
           </button>
         </div>

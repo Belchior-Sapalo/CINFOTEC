@@ -19,6 +19,16 @@
     @apply text-gray-600
 }
 
+.input-no-spin::-webkit-inner-spin-button,
+.input-no-spin::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input-no-spin {
+  -moz-appearance: textfield;
+}
+
 .auth-change-btn {
     @apply font-bold px-2 py-1 hover:bg-sky-800 hover:text-white cursor-pointer transition-all
 }

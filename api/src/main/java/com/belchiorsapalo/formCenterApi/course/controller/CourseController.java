@@ -3,8 +3,10 @@ package com.belchiorsapalo.formCenterApi.course.controller;
 import java.util.List;
 import java.util.UUID;
 
+import com.belchiorsapalo.formCenterApi.user.model.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.belchiorsapalo.formCenterApi.course.dtos.CourseRegisterDTO;
@@ -36,8 +38,8 @@ public class CourseController {
 
    //Teatsdo, sucesso
    @PostMapping()
-   public ResponseEntity<Course> register(@RequestBody CourseRegisterDTO courseRegisterDTO) {
-      return ResponseEntity.status(HttpStatus.CREATED).body(courseService.register(courseRegisterDTO));
+   public ResponseEntity<Course> register(@RequestBody CourseRegisterDTO courseRegisterDTO, @AuthenticationPrincipal User user) {
+      return ResponseEntity.status(HttpStatus.CREATED).body(courseService.register(courseRegisterDTO, user));
    }
 
    //Teatsdo, sucesso

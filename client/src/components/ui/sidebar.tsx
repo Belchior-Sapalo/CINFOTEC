@@ -22,13 +22,37 @@ import { Role } from "@/types/auth";
 import type { ILinks } from "@/types/links";
 
 const links: ILinks[] = [
-  {id:1,  label: "Dashboard", to: "dashboard", roles: [Role.SUPER, Role.ADMIN]},
-  {id:2, label: "Cursos", to: "gerencia/cursos", roles: [Role.SUPER, Role.ADMIN]},
-  {id:3, label: "Informações", to: "gerencia/informacoes", roles: [Role.SUPER, Role.ADMIN]},
-  {id:4, label: "Estudantes", to: "gerencia/estudantes", roles: [Role.SUPER, Role.ADMIN]},
-  {id:5, label: "Inscrições", to: "gerencia/inscricoes", roles: [Role.SUPER, Role.ADMIN]},
-  {id:6, label: "Administradores", to: "gerencia/administradores", roles: [Role.SUPER]},
-  {id:7, label: "Perfil", to: "/perfil", roles: [Role.SUPER, Role.ADMIN] },
+  {
+    id: 1,
+    label: "Inscrições",
+    to: "gerencia/inscricoes",
+    roles: [Role.SUPER, Role.ADMIN],
+  },
+  {
+    id: 2,
+    label: "Cursos",
+    to: "gerencia/cursos",
+    roles: [Role.SUPER, Role.ADMIN],
+  },
+  {
+    id: 3,
+    label: "Informações",
+    to: "gerencia/informacoes",
+    roles: [Role.SUPER, Role.ADMIN],
+  },
+  {
+    id: 4,
+    label: "Estudantes",
+    to: "gerencia/estudantes",
+    roles: [Role.SUPER, Role.ADMIN],
+  },
+  {
+    id: 5,
+    label: "Administradores",
+    to: "gerencia/administradores",
+    roles: [Role.SUPER],
+  },
+  { id: 6, label: "Perfil", to: "/perfil", roles: [Role.SUPER, Role.ADMIN] },
   //{ label: "Início", path: "/" },
 ];
 
@@ -111,7 +135,7 @@ function SidebarLinks({
   setExpanded: Function;
   isMobile: boolean;
 }) {
-  const {state} = useAuth()
+  const { state } = useAuth();
 
   return (
     <>
@@ -123,14 +147,10 @@ function SidebarLinks({
             to={link.to}
             className={({ isActive }) =>
               `
-            ${
-              !link.roles.includes(state.user?.role!)
-                ? "hidden"
-                : "flex"
-            }
+            ${!link.roles.includes(state.user?.role!) ? "hidden" : "flex"}
             flex items-center ${
-                expanded ? "" : "justify-center"
-              } gap-2 p-2 rounded-md transition-all duration-75 ${
+              expanded ? "" : "justify-center"
+            } gap-2 p-2 rounded-md transition-all duration-75 ${
                 isActive
                   ? "bg-gray-200 text-gray-700"
                   : "text-gray-500 hover:bg-gray-100"
@@ -156,15 +176,11 @@ function SidebarLinks({
                   key={link.label}
                   to={link.to}
                   className={({ isActive }) =>
-                  `
-                  ${
-                    !link.roles.includes(state.user?.role!)
-                      ? "hidden"
-                      : "flex"
-                  }
+                    `
+                  ${!link.roles.includes(state.user?.role!) ? "hidden" : "flex"}
                   flex items-center ${
-                      expanded ? "" : "justify-center"
-                    } gap-2 p-2 rounded-md transition-all duration-75 ${
+                    expanded ? "" : "justify-center"
+                  } gap-2 p-2 rounded-md transition-all duration-75 ${
                       isActive
                         ? "bg-gray-200 text-gray-700"
                         : "text-gray-500 hover:bg-gray-100"

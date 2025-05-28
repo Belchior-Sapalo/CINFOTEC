@@ -81,7 +81,7 @@ export default function Admins() {
               <UserCard.ActionsContainer className="flex justify-end">
                 <UserCard.Action className="">
                   <DeleteAdminAccountDialog
-                    id={admin.id}
+                    id={admin.id!}
                     onReload={() => getAdmins()}
                   />
                 </UserCard.Action>

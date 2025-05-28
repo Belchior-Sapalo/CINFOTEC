@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router";
+import { Link, NavLink, useLocation } from "react-router";
 import {
   FaBars,
   FaBook,
@@ -11,7 +11,7 @@ import { useState } from "react";
 import { FaX } from "react-icons/fa6";
 import { MdDashboard, MdSchool } from "react-icons/md";
 import { Logo } from "./Logo";
-import { GoToAuthButton, LogoutButton } from "./Buttons";
+import { GoToAuthButton, GoToProfileButton, LogoutButton } from "./Buttons";
 import { links } from "../../shared/constants";
 import { useAuth } from "@/contexts/AuthContext";
 import { Role } from "@/types/auth";
@@ -36,6 +36,7 @@ const getIcon = (label: string) => {
 function MobileNavBar() {
   const [visible, setVisible] = useState<boolean>(false);
   const { state } = useAuth();
+  const { pathname } = useLocation();
 
   const toggleNav = () => {
     setVisible((prev) => !prev);
@@ -96,19 +97,8 @@ function MobileNavBar() {
       </nav>
 
       <div className="flex gap-4">
-        <GoToAuthButton
-          className={`${
-            state.isAuthenticated ? "hidden" : "flex"
-          } text-white bg-gray-500 p-2 rounded-full cursor-pointer`}
-        />
-        <Link
-          to="/perfil"
-          className={`${
-            state.isAuthenticated ? "flex" : "hidden"
-          } text-white bg-gray-500 p-2 rounded-full cursor-pointer`}
-        >
-          <FaUserCircle />
-        </Link>
+        {pathname !== "/auth" && <GoToAuthButton />}
+        {pathname !== "/perfil" && <GoToProfileButton />}
         <LogoutButton />
       </div>
     </aside>
@@ -117,6 +107,8 @@ function MobileNavBar() {
 
 function DeskNavBar() {
   const { state } = useAuth();
+  const { pathname } = useLocation();
+
   return (
     <header className="hidden sm:flex justify-between items-center border-b border-gray-200 h-18 px-8">
       <nav className="flex gap-8 items-center">
@@ -146,19 +138,8 @@ function DeskNavBar() {
         </ul>
       </nav>
       <div className="flex gap-2">
-        <GoToAuthButton
-          className={`${
-            state.isAuthenticated ? "hidden" : "flex"
-          } text-white bg-gray-500 p-2 rounded-full cursor-pointer`}
-        />
-        <Link
-          to="/perfil"
-          className={`${
-            state.isAuthenticated ? "flex" : "hidden"
-          } text-white bg-gray-500 p-2 rounded-full cursor-pointer`}
-        >
-          <FaUserCircle />
-        </Link>
+        {pathname !== "/auth" && <GoToAuthButton />}
+        {pathname !== "/perfil" && <GoToProfileButton />}
         <LogoutButton />
       </div>
     </header>

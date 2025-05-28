@@ -1,3 +1,5 @@
+import type { IUser } from "./auth"
+
 export interface ICourse {
     id: string
     title: string
@@ -5,4 +7,6 @@ export interface ICourse {
     duration: string
     payed: boolean
     price: number
+    vacancies: number
+    createdBy?: IUser
 }
