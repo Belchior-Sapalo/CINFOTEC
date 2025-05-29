@@ -1,12 +1,13 @@
 package com.belchiorsapalo.formCenterApi.enrollment.controller;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
+import com.belchiorsapalo.formCenterApi.pdf.services.PdfGeneratorService;
 import com.belchiorsapalo.formCenterApi.user.model.User;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,9 +20,11 @@ import com.belchiorsapalo.formCenterApi.enrollment.service.EnrollmentService;
 @RequestMapping("/enrollments")
 public class EnrollmentController {
    private final EnrollmentService enrollmentService;
+   private final PdfGeneratorService pdfGeneratorService;
 
-   public EnrollmentController(EnrollmentService enrollmentService) {
+   public EnrollmentController(EnrollmentService enrollmentService, PdfGeneratorService pdfGeneratorService) {
       this.enrollmentService = enrollmentService;
+      this.pdfGeneratorService = pdfGeneratorService;
    }
 
    @GetMapping
@@ -59,5 +62,21 @@ public class EnrollmentController {
    public ResponseEntity<Object> delete(@PathVariable UUID id) throws IOException {
       enrollmentService.deleteEnrollment(id);
       return ResponseEntity.ok().build();
+   }
+
+   @GetMapping("/proof/{id}")
+   public ResponseEntity<byte[]> generateEnrollmentProof(@PathVariable UUID id, @AuthenticationPrincipal User user) {
+
+      byte[] pdf = enrollmentService.generateProof(id);
+      String fileName = user.getName() + "_" + "comprovativo-inscricao-cinfotec.pdf";
+      ContentDisposition contentDisposition = ContentDisposition
+              .builder("attachment")
+              .filename(fileName, StandardCharsets.UTF_8)
+              .build();
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_PDF);
+      headers.setContentDisposition(contentDisposition);
+
+      return new ResponseEntity<>(pdf, headers, HttpStatus.OK);
    }
 }

@@ -1,13 +1,13 @@
 import ScrollToTop from "@/components/ScrollToTop";
-import React from "react";
+import logoPath from "@/assets/images/logo_cinfotec.png";
 
 export default function About() {
   return (
-    <main className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md my-12">
-      <ScrollToTop/>
-      <h1 className="text-4xl font-bold mb-6 text-center text-blue-700">
-        Centro Integrado de Formação Tecnológica - CINFOTEC
-      </h1>
+    <main className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md my-4">
+      <ScrollToTop />
+      <div className="flex items-center justify-center">
+        <img src={logoPath} />
+      </div>
 
       <p className="mb-6 text-gray-700 leading-relaxed">
         O Centro Integrado de Formação Tecnológica - <strong>CINFOTEC</strong> -
@@ -18,7 +18,7 @@ export default function About() {
       </p>
 
       <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4 text-blue-600">
+        <h2 className="text-2xl font-semibold mb-4 text-sky-800">
           Nossas Áreas de Formação
         </h2>
         <ul className="list-disc list-inside space-y-2 text-gray-700">
@@ -55,7 +55,7 @@ export default function About() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-semibold mb-4 text-blue-600">
+        <h2 className="text-2xl font-semibold mb-4 text-sky-800">
           Nossa Visão
         </h2>
         <p className="text-gray-700 leading-relaxed mb-6">
@@ -64,7 +64,7 @@ export default function About() {
           tecnológica em todas as regiões atendidas.
         </p>
 
-        <h2 className="text-2xl font-semibold mb-4 text-blue-600">
+        <h2 className="text-2xl font-semibold mb-4 text-sky-800">
           Nossa Missão
         </h2>
         <p className="text-gray-700 leading-relaxed">

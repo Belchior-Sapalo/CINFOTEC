@@ -25,6 +25,16 @@ export const handleGetStudentEnrollments = async () => {
     })
 }
 
+export const handleGetEnrollmentProof = async (id: string) => {
+    return await axios(`${BASE_URL}/enrollments/proof/${id}`, {
+        headers: {
+            Authorization: `Bearer ${AUTH_TOKEN()}`,
+        },
+        responseType: 'blob'
+    });
+};
+
+
 export const handleGetAllEnrollments = async () => {
     return await axios(`${BASE_URL}/enrollments`, {
         headers: {

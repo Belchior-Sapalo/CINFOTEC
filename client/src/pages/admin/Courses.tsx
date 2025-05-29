@@ -1,7 +1,6 @@
 import { handleGelAllCourses } from "@/api/coursesServices";
 import ScrollToTop from "@/components/ScrollToTop";
 import { CourseCard1 as CourseCard } from "@/components/ui/course";
-import { DialogHeader } from "@/components/ui/dialog";
 import {
   CreateCourseDialog,
   DeleteCourseDialog,
@@ -13,17 +12,9 @@ import { Loader } from "@/components/ui/Loader";
 import NoContent from "@/components/ui/NoContent";
 import { useAuth } from "@/contexts/AuthContext";
 import { removeAccents } from "@/shared/functions";
-import type { IUser } from "@/types/auth";
 import type { ICourse } from "@/types/course";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
-import { FaMoneyBill, FaGift, FaIdCard, FaPhone, FaUser } from "react-icons/fa";
-import { MdEmail } from "react-icons/md";
+import { FaGift, FaMoneyBill } from "react-icons/fa";
 
 export default function Courses() {
   const [courses, setCourses] = useState<ICourse[]>([]);
@@ -95,7 +86,7 @@ export default function Courses() {
               )}
             </CourseCard.Header>
             <CourseCard.Content>
-              <p className="text-justify mb-2">
+              <p className="mb-2">
                 {course.description.length <= maxCourseLength
                   ? course.description
                   : `${course.description.substring(0, maxCourseLength)}...`}

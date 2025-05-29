@@ -2,14 +2,14 @@ import {
   handleGetInformation,
   handleGetInformationImage,
 } from "@/api/informationsServices";
+import ScrollToTop from "@/components/ScrollToTop";
 import { InfoCard } from "@/components/ui/information";
 import { Loader } from "@/components/ui/Loader";
 import NoContent from "@/components/ui/NoContent";
 import { type IInformation } from "@/types/information";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import imagePath from "../../assets/images/news.jpg";
-import ScrollToTop from "@/components/ScrollToTop";
 
 export default function Information() {
   const [searchParams] = useSearchParams();

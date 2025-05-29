@@ -1,6 +1,9 @@
+import ScrollToTop from "@/components/ScrollToTop";
+import { RecoverPasswordDialog } from "@/components/ui/Dialogs";
+import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
+import { useAuth } from "@/contexts/AuthContext";
+import { TooltipContent, TooltipProvider } from "@radix-ui/react-tooltip";
 import { useState } from "react";
-import { handleLogin, handleRegister } from "../../api/authServices";
-import { type ILogin, type IRegister, type IUser } from "../../types/auth";
 import {
   FaEye,
   FaEyeSlash,
@@ -11,13 +14,10 @@ import {
   FaUserPlus,
 } from "react-icons/fa";
 import { MdMail, MdPassword } from "react-icons/md";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
+import { handleLogin, handleRegister } from "../../api/authServices";
 import { SubmitButton } from "../../components/ui/Buttons";
-import { TooltipContent, TooltipProvider } from "@radix-ui/react-tooltip";
-import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
-import { useAuth } from "@/contexts/AuthContext";
-import { RecoverPasswordDialog } from "@/components/ui/Dialogs";
-import ScrollToTop from "@/components/ScrollToTop";
+import { type ILogin, type IRegister } from "../../types/auth";
 
 export default function Auth() {
   const [logging, setLogging] = useState<boolean>(true);

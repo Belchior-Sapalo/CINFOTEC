@@ -50,6 +50,7 @@ public class SecurityConfigs {
                         .requestMatchers(HttpMethod.POST, "/enrollments").hasRole("STUDENT")
                         .requestMatchers(HttpMethod.GET, "/enrollments/me").hasRole("STUDENT")
                         .requestMatchers(HttpMethod.GET, "/enrollments").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/enrollments/proof/{id}").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "enrollments/{id}/approve").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "enrollments/{id}/reject").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "enrollments/{id}").authenticated()

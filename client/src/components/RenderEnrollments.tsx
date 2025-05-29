@@ -1,10 +1,16 @@
-import { getStatus, getStyle, formatDateFromTimestamp, formatDateFromISOParts } from "@/shared/functions";
+import {
+  getStatus,
+  getStyle,
+  formatDateFromTimestamp,
+  formatDateFromISOParts,
+} from "@/shared/functions";
 import type { IEnrollment, IStudent } from "@/types/enrollment";
 import { ViewFileDialog, ConfirmActionDialog } from "./ui/Dialogs";
 import { EnrollmentCard } from "./ui/enrollment";
 import {
   handleApproveEnrollment,
   handleDeleteEnrollment,
+  handleGetEnrollmentProof,
   handleRejectEnrollment,
 } from "@/api/EnrollServices";
 import { useState } from "react";
@@ -72,6 +78,30 @@ export function RenderEnrollments({
         setLoading(false);
       });
   }
+
+  async function getEnrollentProof(id: string) {
+    setLoading(true);
+    await handleGetEnrollmentProof(id)
+      .then((res) => {
+        const blob = new Blob([res.data], { type: "application/pdf" });
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "comprovativo-inscricao.pdf");
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }
+
   return (
     <div className="grid gap-6 px-4 pb-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {enrollments?.map((enrollment) => {
@@ -186,27 +216,27 @@ export function RenderEnrollments({
             {status === "PENDING" && (
               <EnrollmentCard.Footer className="border-t px-4 py-3 bg-gray-50">
                 <EnrollmentCard.ActionsContainer className="flex justify-end gap-2">
-                  {(!fromAdmin && status === "PENDING") && (
+                  {!fromAdmin && status === "PENDING" && (
                     <EnrollmentCard.Action className="">
                       <ConfirmActionDialog
                         tooltipContent="Cancelar inscrição"
                         onConfirm={() => deleteEnrollment(id)}
                       >
-                        <button className="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-3 py-1.5 rounded-md transition">
+                        <button className="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-3 py-1.5 rounded-md transition cursor-pointer">
                           Cancelar
                         </button>
                       </ConfirmActionDialog>
                     </EnrollmentCard.Action>
                   )}
 
-                  {(fromAdmin && status === "PENDING") && (
+                  {fromAdmin && status === "PENDING" && (
                     <>
                       <EnrollmentCard.Action className="">
                         <ConfirmActionDialog
                           tooltipContent="Rejeitar inscrição"
                           onConfirm={() => rejectEnrollment(id)}
                         >
-                          <button className="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-3 py-1.5 rounded-md transition">
+                          <button className="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-3 py-1.5 rounded-md transition cursor-pointer">
                             Rejeitar
                           </button>
                         </ConfirmActionDialog>
@@ -217,13 +247,31 @@ export function RenderEnrollments({
                           tooltipContent="Aprovar inscrição"
                           onConfirm={() => approveEnrollment(id)}
                         >
-                          <button className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-3 py-1.5 rounded-md transition">
+                          <button className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-3 py-1.5 rounded-md transition cursor-pointer">
                             Aprovar
                           </button>
                         </ConfirmActionDialog>
                       </EnrollmentCard.Action>
                     </>
                   )}
+                </EnrollmentCard.ActionsContainer>
+              </EnrollmentCard.Footer>
+            )}
+            {status === "APPROVED" && !fromAdmin && (
+              <EnrollmentCard.Footer className="border-t px-4 py-3 bg-gray-50">
+                <EnrollmentCard.ActionsContainer className="flex justify-end gap-2">
+                  <EnrollmentCard.Action className="">
+                    <button
+                      onClick={() => getEnrollentProof(enrollment.id)}
+                      className={`${
+                        loading
+                          ? "bg-gray-300 text-gray-500 font-bold py-1 px-4 rounded cursor-not-allowed"
+                          : "bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-3 py-1.5 rounded-md transition cursor-pointer"
+                      }`}
+                    >
+                      {loading ? "Baixando..." : "Baixar comprovativo"}
+                    </button>
+                  </EnrollmentCard.Action>
                 </EnrollmentCard.ActionsContainer>
               </EnrollmentCard.Footer>
             )}

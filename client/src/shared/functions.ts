@@ -1,7 +1,3 @@
-import { useEffect } from "react";
-import { FaUserCircle } from "react-icons/fa";
-import { useLocation } from "react-router";
-
 export function formatDateFromISOParts(date: string) {
   const [year, month, day] = date.split("-");
   return `${day}/${month}/${year}`;

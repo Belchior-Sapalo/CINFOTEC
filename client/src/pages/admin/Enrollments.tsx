@@ -1,22 +1,13 @@
 import {
-  handleApproveEnrollment,
-  handleGetAllEnrollments,
-  handleRejectEnrollment,
+  handleGetAllEnrollments
 } from "@/api/EnrollServices";
 import { RenderEnrollments } from "@/components/RenderEnrollments";
 import ScrollToTop from "@/components/ScrollToTop";
-import {
-  ConfirmActionDialog,
-  StudentInfoDialog,
-  ViewFileDialog,
-} from "@/components/ui/Dialogs";
-import { EnrollmentCard } from "@/components/ui/enrollment";
 import { Loader } from "@/components/ui/Loader";
 import NoContent from "@/components/ui/NoContent";
-import { formatedDate, getStatus, getStyle, removeAccents } from "@/shared/functions";
+import { removeAccents } from "@/shared/functions";
 import type { IEnrollment } from "@/types/enrollment";
 import { useEffect, useState } from "react";
-import { FaFilePdf } from "react-icons/fa";
 import { useSearchParams } from "react-router";
 
 export default function Enrollments() {
@@ -42,35 +33,6 @@ export default function Enrollments() {
       .then((res) => {
         setEnrollments(res.data);
         console.log(res.data)
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }
-
-  async function rejectEnrollment(id: string) {
-    setLoading(true);
-    await handleRejectEnrollment(id)
-      .then((res) => {
-        getEnrollments();
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }
-
-  async function approveEnrollment(id: string) {
-    setLoading(true);
-    await handleApproveEnrollment(id)
-      .then((res) => {
-        console.log(res);
-        getEnrollments();
       })
       .catch((err) => {
         console.log(err);

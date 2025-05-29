@@ -1,4 +1,4 @@
-import { handleGetAllAdmins, handleGetAllStudents } from "@/api/userServices";
+import { handleGetAllAdmins } from "@/api/userServices";
 import ScrollToTop from "@/components/ScrollToTop";
 import {
   DeleteAdminAccountDialog,
@@ -11,7 +11,6 @@ import { type IUser } from "@/types/auth";
 import { useEffect, useState } from "react";
 import { FaIdCard, FaPhone } from "react-icons/fa";
 import { MdMail } from "react-icons/md";
-import { Link } from "react-router";
 
 export default function Admins() {
   const [loading, setLoading] = useState<boolean>(false);

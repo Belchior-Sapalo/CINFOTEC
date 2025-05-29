@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.belchiorsapalo.formCenterApi.pdf.services.PdfGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,15 +32,17 @@ public class EnrollmentService {
    private final UserRepository userRepository;
    private final FileService fileService;
    private final TokenService tokenService;
+   private final PdfGeneratorService pdfGeneratorService;
 
    @Autowired
    public EnrollmentService(EnrollmentRepository enrollmentRepository, CourseRepository courseRepository,
-         UserRepository userRepository, FileService fileService, TokenService tokenService) {
+         UserRepository userRepository, FileService fileService, TokenService tokenService, PdfGeneratorService pdfGeneratorService) {
       this.enrollmentRepository = enrollmentRepository;
       this.courseRepository = courseRepository;
       this.userRepository = userRepository;
       this.fileService = fileService;
       this.tokenService = tokenService;
+      this.pdfGeneratorService = pdfGeneratorService;
    }
 
    @Transactional
@@ -122,6 +125,13 @@ public class EnrollmentService {
       enrollmentToReject.setStatus(EnrollmentStatus.REJECTED);
       enrollmentToReject.setProcessedAt(LocalDateTime.now());
       return enrollmentRepository.save(enrollmentToReject);
+   }
+
+   public byte[] generateProof(UUID id){
+      Enrollment enrollment = enrollmentRepository.findById(id).orElseThrow(() -> new AnotherApiException("Ocorreu um erro ao gerar comprovativo de inscrição"));
+      if (!enrollment.getStatus().equals(EnrollmentStatus.APPROVED))
+         throw new AnotherApiException("Não é possível gerar comprovativo de uma inscrição não aprovada");
+      return pdfGeneratorService.generateEnrollmentProof(enrollment);
    }
 
    @Transactional

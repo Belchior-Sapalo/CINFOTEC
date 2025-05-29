@@ -5,7 +5,7 @@ import { RegisterEnrollDialog } from "@/components/ui/Dialogs";
 import { Loader } from "@/components/ui/Loader";
 import { useAuth } from "@/contexts/AuthContext";
 import { type ICourse } from "@/types/course";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FaGift, FaMoneyBill } from "react-icons/fa";
 import { useSearchParams } from "react-router";
 

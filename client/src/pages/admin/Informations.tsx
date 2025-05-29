@@ -9,7 +9,7 @@ import {
 import { InfoCard } from "@/components/ui/information";
 import { Loader } from "@/components/ui/Loader";
 import NoContent from "@/components/ui/NoContent";
-import { formatedDate, removeAccents } from "@/shared/functions";
+import { formatDateFromISOParts, removeAccents } from "@/shared/functions";
 import { type IInformation } from "@/types/information";
 import { useEffect, useState } from "react";
 
@@ -46,7 +46,7 @@ export default function Informations() {
             <InfoCard.Header>
               <h1 className="text-2xl mb-2">{information.title}</h1>
               <h5 className="border-l-2 border-green-600 px-2 mb-2">
-                Data de publicação: {formatedDate(information.createdAt)}
+                Data de publicação: {formatDateFromISOParts(information.createdAt)}
               </h5>
               <h5 className="border-l-2 border-red-600 px-2 mb-2">
                 Categoria: {information.category}
