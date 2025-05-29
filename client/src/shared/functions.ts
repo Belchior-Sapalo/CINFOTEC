@@ -2,8 +2,16 @@ import { useEffect } from "react";
 import { FaUserCircle } from "react-icons/fa";
 import { useLocation } from "react-router";
 
-export function formatedDate(date: string) {
+export function formatDateFromISOParts(date: string) {
   const [year, month, day] = date.split("-");
+  return `${day}/${month}/${year}`;
+}
+
+export function formatDateFromTimestamp(dateString: string) {
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // mês começa do 0
+  const year = date.getFullYear();
   return `${day}/${month}/${year}`;
 }
 

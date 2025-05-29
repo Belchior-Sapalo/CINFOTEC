@@ -1,8 +1,10 @@
+import ScrollToTop from "@/components/ScrollToTop";
 import React from "react";
 
 export default function About() {
   return (
     <main className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md my-12">
+      <ScrollToTop/>
       <h1 className="text-4xl font-bold mb-6 text-center text-blue-700">
         Centro Integrado de Formação Tecnológica - CINFOTEC
       </h1>

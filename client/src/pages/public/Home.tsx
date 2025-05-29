@@ -7,6 +7,7 @@ import NoContent from "@/components/ui/NoContent";
 import { MdInbox, MdQuestionMark } from "react-icons/md";
 import { FaSearch } from "react-icons/fa";
 import { removeAccents } from "@/shared/functions";
+import ScrollToTop from "@/components/ScrollToTop";
 
 export default function Home() {
   const [informations, setInformations] = useState<IInformation[]>([]);
@@ -52,6 +53,7 @@ export default function Home() {
 
   return (
     <div>
+      <ScrollToTop/>
       <div className="py-4 sm:p-8">
         <div className="px-4 flex gap-2 flex-col sm:flex-row sm:items-center">
           <h1 className="text-2xl">Notícias</h1>

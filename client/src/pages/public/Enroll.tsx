@@ -1,4 +1,5 @@
 import { handleGelCourse } from "@/api/coursesServices";
+import ScrollToTop from "@/components/ScrollToTop";
 import { CourseCard1 as CourseCard } from "@/components/ui/course";
 import { RegisterEnrollDialog } from "@/components/ui/Dialogs";
 import { Loader } from "@/components/ui/Loader";
@@ -34,6 +35,7 @@ export default function Enroll() {
 
   return (
     <div className="flex justify-center p-4">
+      <ScrollToTop/>
       <CourseCard.Container className="border border-gray-200 p-4 rounded-md transition-all shadow shadow-gray-100">
         <CourseCard.Header>
           <h1 className="text-2xl">{course?.title}</h1>
@@ -72,7 +74,7 @@ export default function Enroll() {
           {state.user?.role === "STUDENT" && course?.vacancies! > 0 && (
             <RegisterEnrollDialog id={course?.id!} />
           )}
-          {!state.isAuthenticated && (
+          {(!state.isAuthenticated && course?.vacancies! > 0 ) && (
             <h4 className="text-gray-400">Inicie sessão para se inscrever</h4>
           )}
           {course?.vacancies! <= 0 && (

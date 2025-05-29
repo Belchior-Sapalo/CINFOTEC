@@ -55,9 +55,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@radix-ui/react-tooltip";
-import { MdMail, MdPassword } from "react-icons/md";
+import { MdEmail, MdMail, MdPassword } from "react-icons/md";
 import { SubmitButton } from "./Buttons";
-import type { IRegister } from "@/types/auth";
+import type { IRegister, IUser } from "@/types/auth";
 import { handleRegisterAdmin } from "@/api/authServices";
 import FileViewer from "../FileViewer";
 import Information from "@/pages/public/Information";
@@ -815,7 +815,7 @@ interface ValidationResult {
   errors: Record<string, string>;
 }
 
-function validateCourse(course: ICourse): ValidationResult {
+function validateCourse(course: ICourse, creating: boolean): ValidationResult {
   const errors: Record<string, string> = {};
 
   if (!course.title || course.title.trim().length < 3) {
@@ -833,6 +833,13 @@ function validateCourse(course: ICourse): ValidationResult {
 
   if (course.payed && (isNaN(course.price) || course.price < 1)) {
     errors.price = "Informe um preço válido (maior que 0) para cursos pagos.";
+  }
+
+  if (!creating && (isNaN(course.vacancies) || course.vacancies < 0)) {
+    errors.vacancies = "Informe um número válido de vagas (maior ou igual a 0)";
+  }
+  if (creating && (isNaN(course.vacancies) || course.vacancies < 1)) {
+    errors.vacancies = "Informe um número válido de vagas (maior que 0)";
   }
 
   return {
@@ -866,7 +873,7 @@ export function EditCourseDialog({
   const [success, setSuccess] = useState<string | null>(null);
 
   async function updateCourse() {
-    const result = validateCourse(formData);
+    const result = validateCourse(formData, false);
 
     if (!result.valid) {
       const firstError = Object.values(result.errors)[0];
@@ -1018,6 +1025,74 @@ export function EditCourseDialog({
   );
 }
 
+export function RenderCourseDescriptionDialog({ course }: { course: ICourse }) {
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <button className="text-gray-500 cursor-pointer">Ver mais...</button>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl">{course.title}</DialogTitle>
+          <DialogDescription></DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col gap-2">
+          {course.description.split("\n").map((p, i) => (
+            <p className="text-justify" key={i}>
+              {p}
+            </p>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function RenderCourseCreatorDialog({ author }: { author: IUser }) {
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <button
+          title="Ver autor"
+          className="text-gray-500 mb-4 cursor-pointer flex gap-2 items-center"
+        >
+          <FaUser /> <span>{author.name}</span>
+        </button>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{author.name}</DialogTitle>
+          <DialogDescription></DialogDescription>
+        </DialogHeader>
+        <div className="flex items-center gap-1">
+          <span className="font-medium text-gray-900">
+            <MdEmail />
+          </span>{" "}
+          {author.email || (
+            <span className="italic text-gray-400">Não informado</span>
+          )}
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="font-medium text-gray-900">
+            <FaIdCard />
+          </span>{" "}
+          {author.bi || (
+            <span className="italic text-gray-400">Não informado</span>
+          )}
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="font-medium text-gray-900">
+            <FaPhone />
+          </span>{" "}
+          {author.phoneNumber || (
+            <span className="italic text-gray-400">Não informado</span>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export function CreateCourseDialog({ onReload }: { onReload: Function }) {
   const initialValues = {
     id: "",
@@ -1035,7 +1110,7 @@ export function CreateCourseDialog({ onReload }: { onReload: Function }) {
   const [success, setSuccess] = useState<string | null>(null);
 
   async function createCourse() {
-    const result = validateCourse(formData);
+    const result = validateCourse(formData, true);
 
     if (!result.valid) {
       const firstError = Object.values(result.errors)[0];
@@ -1173,7 +1248,7 @@ export function CreateCourseDialog({ onReload }: { onReload: Function }) {
             id="vacancies"
             className="input-no-spin outline-none border border-gray-400 p-2 rounded focus:border-gray-600"
             type="number"
-            placeholder="Preço"
+            placeholder="Vagas"
             value={formData.vacancies}
             onChange={(e) =>
               setFormData({ ...formData, vacancies: e.target.valueAsNumber })
@@ -1430,7 +1505,7 @@ export function EditInfoDialog({
   );
 }
 
-export async function CreateInfoDialog({ onReload }: { onReload: Function }) {
+export function CreateInfoDialog({ onReload }: { onReload: Function }) {
   const initialValues = {
     id: "",
     title: "",
@@ -1447,6 +1522,16 @@ export async function CreateInfoDialog({ onReload }: { onReload: Function }) {
   const [success, setSuccess] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  async function handleFile(fileToSend: File) {
+    if (!fileToSend) {
+      const response = await fetch("/news.jpg");
+      const blob = await response.blob();
+      fileToSend = new File([blob], "news.jpg", { type: "image/jpg" });
+    }
+  }
+
+  let fileToSend = selectedFile;
 
   async function createInformation() {
     const result = validateInformation(formData);
@@ -1486,14 +1571,6 @@ export async function CreateInfoDialog({ onReload }: { onReload: Function }) {
           setSuccess(null);
         }, 3000);
       });
-  }
-
-  let fileToSend = selectedFile;
-
-  if (!fileToSend) {
-    const response = await fetch("/news.jpg");
-    const blob = await response.blob();
-    fileToSend = new File([blob], "news.jpg", { type: "image/png" });
   }
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -1573,7 +1650,7 @@ export async function CreateInfoDialog({ onReload }: { onReload: Function }) {
           />
           <div className="grid w-full max-w-sm items-center gap-1.5">
             <label htmlFor="picture" className="text-[14px]">
-              Anexo (.jpeg, .jpg, .png )
+              Anexo<sup className="text-red-500 font-bold">*</sup>
             </label>
             <div className="flex items-center gap-2">
               {previewUrl && (
@@ -1598,6 +1675,7 @@ export async function CreateInfoDialog({ onReload }: { onReload: Function }) {
                 <FaTrash />
               </button>
             </div>
+            <small className="text-red-500">Extensões permitidas: .jpeg, .jpg, .png (tamanho máximo: 10MB)</small>
           </div>
         </form>
         <DialogFooter className="flex">
@@ -1613,6 +1691,33 @@ export async function CreateInfoDialog({ onReload }: { onReload: Function }) {
             {loading ? "Adicionando..." : "Adicionar"}
           </button>
         </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export function RenderInfoDescriptionDialog({
+  information,
+}: {
+  information: IInformation;
+}) {
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <button className="text-gray-500 cursor-pointer">Ver mais...</button>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl w-full max-h-[90vh] overflow-y-auto p-4">
+        <DialogHeader>
+          <DialogTitle className="text-2xl">{information.title}</DialogTitle>
+          <DialogDescription></DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col gap-2">
+          {information.body.split("\n").map((p, i) => (
+            <p className="text-justify" key={i}>
+              {p}
+            </p>
+          ))}
+        </div>
       </DialogContent>
     </Dialog>
   );
@@ -1770,7 +1875,7 @@ export function RegisterEnrollDialog({ id }: { id: string }) {
               </button>
             </div>
           </div>
-          <small>Extensões permitidas: .jpeg, .jpg, .png, .pdf</small>
+          <small className="text-red-500">Extensões permitidas: .jpeg, .jpg, .png, .pdf (tamanho máximo: 10MB)</small>
           <button
             disabled={loading}
             onClick={() => registerEnrollment()}

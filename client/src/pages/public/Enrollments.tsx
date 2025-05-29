@@ -1,7 +1,6 @@
-import {
-  handleGetStudentEnrollments,
-} from "@/api/EnrollServices";
+import { handleGetStudentEnrollments } from "@/api/EnrollServices";
 import { RenderEnrollments } from "@/components/RenderEnrollments";
+import ScrollToTop from "@/components/ScrollToTop";
 import { Loader } from "@/components/ui/Loader";
 import NoContent from "@/components/ui/NoContent";
 import { removeAccents } from "@/shared/functions";
@@ -30,27 +29,28 @@ export default function Enrollemnts() {
       });
   }
 
-
   if (loading) return <Loader label="Carregango suas inscrições..." />;
   if (enrollments?.length === 0) return <NoContent title="Sem inscrições" />;
-  
 
   const filteredEnrollments = enrollments?.filter((enrollment) => {
     const matchesFilter = filter ? enrollment.status === filter : true;
-  
-    const normalizedTitle = removeAccents(enrollment.course.title.toLowerCase());
+
+    const normalizedTitle = removeAccents(
+      enrollment.course.title.toLowerCase()
+    );
     const normalizedSearchKey = removeAccents(searchKey?.toLowerCase() || "");
-  
+
     const matchesSearch = searchKey
       ? normalizedTitle.includes(normalizedSearchKey)
       : true;
-  
+
     return matchesFilter && matchesSearch;
   });
-  
 
   return (
     <div className="min-h-screen  p-4">
+      <ScrollToTop />
+
       <form className="flex gap-2 p-2 mb-4">
         <select
           className="bg-gray-500 pl-2 rounded-md text-white"
@@ -76,7 +76,11 @@ export default function Enrollemnts() {
           description=""
         />
       ) : (
-        <RenderEnrollments enrollments={filteredEnrollments!} onReload={getEnrollments} fromAdmin={false}/>
+        <RenderEnrollments
+          enrollments={filteredEnrollments!}
+          onReload={getEnrollments}
+          fromAdmin={false}
+        />
       )}
     </div>
   );

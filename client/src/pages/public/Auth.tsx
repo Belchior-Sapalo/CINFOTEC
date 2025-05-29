@@ -17,6 +17,7 @@ import { TooltipContent, TooltipProvider } from "@radix-ui/react-tooltip";
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/contexts/AuthContext";
 import { RecoverPasswordDialog } from "@/components/ui/Dialogs";
+import ScrollToTop from "@/components/ScrollToTop";
 
 export default function Auth() {
   const [logging, setLogging] = useState<boolean>(true);
@@ -121,6 +122,7 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex flex-col items-center md:justify-center bg-sky-900 p-4">
+      <ScrollToTop/>
       <div className="bg-gray-50 p-8 w-full sm:w-[70%] md:w-[60%] lg:w-[40%] rounded">
         <div className="flex items-center mb-4">
           <button

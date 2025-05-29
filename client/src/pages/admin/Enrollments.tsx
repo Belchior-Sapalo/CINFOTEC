@@ -4,6 +4,7 @@ import {
   handleRejectEnrollment,
 } from "@/api/EnrollServices";
 import { RenderEnrollments } from "@/components/RenderEnrollments";
+import ScrollToTop from "@/components/ScrollToTop";
 import {
   ConfirmActionDialog,
   StudentInfoDialog,
@@ -87,10 +88,12 @@ export default function Enrollments() {
     const matchesFilter = filter ? enrollment.status === filter : true;
   
     const normalizedTitle = removeAccents(enrollment.course.title.toLowerCase());
+    const normalizedStudentBi = removeAccents(enrollment.student.bi!.toLowerCase());
+
     const normalizedSearchKey = removeAccents(searchKey?.toLowerCase() || "");
   
     const matchesSearch = searchKey
-      ? normalizedTitle.includes(normalizedSearchKey)
+      ? normalizedTitle.includes(normalizedSearchKey) || normalizedStudentBi.includes(normalizedSearchKey)
       : true;
   
     return matchesFilter && matchesSearch;
@@ -98,6 +101,7 @@ export default function Enrollments() {
 
   return (
     <div className="min-h-screen ">
+      <ScrollToTop/>
       <form className="flex gap-2 py-2">
         <select
           className="bg-gray-500 pl-2 rounded-md text-white"

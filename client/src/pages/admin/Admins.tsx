@@ -1,4 +1,5 @@
 import { handleGetAllAdmins, handleGetAllStudents } from "@/api/userServices";
+import ScrollToTop from "@/components/ScrollToTop";
 import {
   DeleteAdminAccountDialog,
   RegisterAdminDialog,
@@ -95,6 +96,7 @@ export default function Admins() {
 
   return (
     <div className="min-h-screen">
+      <ScrollToTop/>
       <div className="flex items-center gap-2">
         <form className="flex gap-2 py-2">
           <input

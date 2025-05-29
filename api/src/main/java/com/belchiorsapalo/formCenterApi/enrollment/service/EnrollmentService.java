@@ -50,6 +50,9 @@ public class EnrollmentService {
       Optional<Course> foundedCourse = courseRepository.findById(courseId);
       if (foundedCourse.isEmpty())
             throw new AnotherApiException("Ocorreu um erro ao inscrever o usuário");
+      if (foundedCourse.get().getVacancies() <= 0) {
+         throw new AnotherApiException("Já não existem vagas para esse curso");
+      }
       courseId = foundedCourse.get().getId();
       Enrollment verifyEnrollment = enrollmentRepository.findEnrollmentByStudentIdAndCourseId(
             foundedStudent.getId(), courseId);

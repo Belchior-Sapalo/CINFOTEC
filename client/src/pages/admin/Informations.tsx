@@ -1,13 +1,15 @@
 import { handleGetAllInformations } from "@/api/informationsServices";
+import ScrollToTop from "@/components/ScrollToTop";
 import {
   CreateInfoDialog,
   DeleteInfoDialog,
   EditInfoDialog,
+  RenderInfoDescriptionDialog,
 } from "@/components/ui/Dialogs";
 import { InfoCard } from "@/components/ui/information";
 import { Loader } from "@/components/ui/Loader";
 import NoContent from "@/components/ui/NoContent";
-import { formatedDate } from "@/shared/functions";
+import { formatedDate, removeAccents } from "@/shared/functions";
 import { type IInformation } from "@/types/information";
 import { useEffect, useState } from "react";
 
@@ -36,36 +38,44 @@ export default function Informations() {
   }
 
   function RenderInformations() {
-    return filteredInformations.map((information) => (
-      <InfoCard.Container>
-        <InfoCard.Header>
-          <h1 className="text-2xl mb-2">{information.title}</h1>
-          <h5 className="border-l-2 border-green-600 px-2 mb-2">
-            Data de publicação: {formatedDate(information.createdAt)}
-          </h5>
-          <h5 className="border-l-2 border-red-600 px-2 mb-2">
-            Categoria: {information.category}
-          </h5>
-        </InfoCard.Header>
-        <InfoCard.Content className="">
-          <div className="flex flex-col gap-2">
-            {information.body.split("\n").map((p, i) => <p className="text-justify" key={i}>{p}</p>)}
-          </div>
-        </InfoCard.Content>
-        <InfoCard.Footer>
-          <div className="flex items-center gap-2">
-            <DeleteInfoDialog
-              id={information.id}
-              onReload={() => getInformations()}
-            />
-            <EditInfoDialog
-              data={information}
-              onReload={() => getInformations()}
-            />
-          </div>
-        </InfoCard.Footer>
-      </InfoCard.Container>
-    ));
+    const maxInfoLength = 100;
+    return (
+      <div className="grid md:grid-cols-3 gap-2">
+        {filteredInformations.map((information) => (
+          <InfoCard.Container>
+            <InfoCard.Header>
+              <h1 className="text-2xl mb-2">{information.title}</h1>
+              <h5 className="border-l-2 border-green-600 px-2 mb-2">
+                Data de publicação: {formatedDate(information.createdAt)}
+              </h5>
+              <h5 className="border-l-2 border-red-600 px-2 mb-2">
+                Categoria: {information.category}
+              </h5>
+            </InfoCard.Header>
+            <InfoCard.Content className="">
+              <p className="text-justify mb-2">
+                {information.body.length <= maxInfoLength
+                  ? information.body
+                  : `${information.body.substring(0, maxInfoLength)}...`}
+              </p>
+              <RenderInfoDescriptionDialog information={information} />
+            </InfoCard.Content>
+            <InfoCard.Footer>
+              <div className="flex items-center gap-2">
+                <DeleteInfoDialog
+                  id={information.id}
+                  onReload={() => getInformations()}
+                />
+                <EditInfoDialog
+                  data={information}
+                  onReload={() => getInformations()}
+                />
+              </div>
+            </InfoCard.Footer>
+          </InfoCard.Container>
+        ))}
+      </div>
+    );
   }
 
   if (loading) return <Loader label="Carregando informações..." />;
@@ -79,12 +89,13 @@ export default function Informations() {
 
   let filteredInformations: IInformation[] = searchKey
     ? informations.filter((info) =>
-        info.title.toLowerCase().includes(searchKey.toLowerCase())
+        removeAccents(info.title).toLowerCase().includes(removeAccents(searchKey).toLowerCase())
       )
     : informations;
 
   return (
     <div className="flex flex-col gap-4 justify-center">
+      <ScrollToTop/>
       <div className="flex gap-2">
         <form action="">
           <input
@@ -99,7 +110,7 @@ export default function Informations() {
         <CreateInfoDialog onReload={() => getInformations()} />
       </div>
       {filteredInformations.length === 0 ? (
-        <NoContent title="Sem resultados"/>
+        <NoContent title="Sem resultados" />
       ) : (
         <RenderInformations />
       )}

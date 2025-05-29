@@ -98,12 +98,12 @@ export function CourseCard({
 }: {
   course: ICourse
 }) {
-  const maxInfoBodyLength = 100;
+  const maxCourseLength = 100;
   return (
     <CourseCard1.Container>
       <CourseCard1.Header>
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl">{course.title}</h1>
+          <h1 className="text-2xl my-2">{course.title}</h1>
           {!course.payed && (
             <p className="flex items-center gap-2">
               {" "}
@@ -124,14 +124,17 @@ export function CourseCard({
           )}
         </div>
         <h4 className="border-l-2 border-l-sky-700 px-2 mb-2">
-          {course.duration}
+          Duração: <span>{course.duration}</span>
+        </h4>
+        <h4 className="border-l-2 border-l-sky-700 px-2 mb-2">
+          Vagas: <span>{course.vacancies}</span>
         </h4>
       </CourseCard1.Header>
       <CourseCard1.Content>
-        <p className="text-justify">
-          {course.description.length <= maxInfoBodyLength
+        <p>
+          {course.description.length <= maxCourseLength
             ? course.description
-            : `${course.description.substring(0, maxInfoBodyLength)}...`}
+            : `${course.description.substring(0, maxCourseLength)}...`}
         </p>
       </CourseCard1.Content>
       <CourseCard1.Footer>

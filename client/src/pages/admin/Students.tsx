@@ -1,4 +1,5 @@
 import { handleGetAllStudents } from "@/api/userServices";
+import ScrollToTop from "@/components/ScrollToTop";
 import { Loader } from "@/components/ui/Loader";
 import NoContent from "@/components/ui/NoContent";
 import { UserCard } from "@/components/ui/user";
@@ -103,6 +104,7 @@ export default function Students() {
 
   return (
     <div className="min-h-screen">
+      <ScrollToTop/>
       <form className="flex gap-2 py-2">
         <input
           type="text"

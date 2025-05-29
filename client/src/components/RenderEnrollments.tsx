@@ -1,4 +1,4 @@
-import { getStatus, getStyle, formatedDate } from "@/shared/functions";
+import { getStatus, getStyle, formatDateFromTimestamp, formatDateFromISOParts } from "@/shared/functions";
 import type { IEnrollment, IStudent } from "@/types/enrollment";
 import { ViewFileDialog, ConfirmActionDialog } from "./ui/Dialogs";
 import { EnrollmentCard } from "./ui/enrollment";
@@ -75,11 +75,14 @@ export function RenderEnrollments({
   return (
     <div className="grid gap-6 px-4 pb-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {enrollments?.map((enrollment) => {
-        const { id, course, status, createdAt, processedAt, files } = enrollment;
+        const { id, course, status, createdAt, processedAt, files } =
+          enrollment;
         const statusText = getStatus(status);
         const statusStyle = getStyle(status);
-        const formattedCreatedAt = formatedDate(createdAt);
-        const formattedProcessedAt = processedAt ? formatedDate(processedAt!) : null
+        const formattedCreatedAt = formatDateFromISOParts(createdAt);
+        const formattedProcessedAt = processedAt
+          ? formatDateFromTimestamp(processedAt!)
+          : null;
         const student: IStudent = enrollment.student;
 
         return (
@@ -99,27 +102,33 @@ export function RenderEnrollments({
             <EnrollmentCard.Content className="flex flex-col gap-4 p-4">
               <div className="bg-white border rounded-lg p-4 shadow-sm space-y-2 text-sm text-gray-700">
                 <div className="flex items-center gap-1">
-                  <span className="font-medium text-gray-900"><FaUser/></span>{" "}
+                  <span className="font-medium text-gray-900">
+                    <FaUser />
+                  </span>{" "}
                   {student.name || (
                     <span className="italic text-gray-400">Não informado</span>
                   )}
                 </div>
                 <div className="flex items-center gap-1">
-                  <span className="font-medium text-gray-900"><MdEmail/></span>{" "}
+                  <span className="font-medium text-gray-900">
+                    <MdEmail />
+                  </span>{" "}
                   {student.email || (
                     <span className="italic text-gray-400">Não informado</span>
                   )}
                 </div>
                 <div className="flex items-center gap-1">
                   <span className="font-medium text-gray-900">
-                    <FaIdCard/>
+                    <FaIdCard />
                   </span>{" "}
                   {student.bi || (
                     <span className="italic text-gray-400">Não informado</span>
                   )}
                 </div>
                 <div className="flex items-center gap-1">
-                  <span className="font-medium text-gray-900"><FaPhone/></span>{" "}
+                  <span className="font-medium text-gray-900">
+                    <FaPhone />
+                  </span>{" "}
                   {student.phoneNumber || (
                     <span className="italic text-gray-400">Não informado</span>
                   )}
@@ -127,16 +136,26 @@ export function RenderEnrollments({
               </div>
               <div className="text-sm text-gray-600">
                 Data da inscrição:{" "}
-                <span className="font-medium text-black">{formattedCreatedAt}</span>
+                <span className="font-medium text-black">
+                  {formattedCreatedAt}
+                </span>
               </div>
-              {status === "APPROVER" && <div className="text-sm text-gray-600">
-                Data da aprovação:{" "}
-                <span className="font-medium text-black">{formattedProcessedAt}</span>
-              </div>}
-              {status === "REJECTED" && <div className="text-sm text-gray-600">
-                Data da rejeição:{" "}
-                <span className="font-medium text-black">{formattedProcessedAt}</span>
-              </div>}
+              {status === "APPROVED" && (
+                <div className="text-sm text-gray-600">
+                  Data da aprovação:{" "}
+                  <span className="font-medium text-black">
+                    {formattedProcessedAt}
+                  </span>
+                </div>
+              )}
+              {status === "REJECTED" && (
+                <div className="text-sm text-gray-600">
+                  Data da rejeição:{" "}
+                  <span className="font-medium text-black">
+                    {formattedProcessedAt}
+                  </span>
+                </div>
+              )}
               {files?.length > 0 && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -164,49 +183,50 @@ export function RenderEnrollments({
                 </DropdownMenu>
               )}
             </EnrollmentCard.Content>
-
-            <EnrollmentCard.Footer className="border-t px-4 py-3 bg-gray-50">
-              <EnrollmentCard.ActionsContainer className="flex justify-end gap-2">
-                {!fromAdmin && status === "PENDING" && (
-                  <EnrollmentCard.Action className="">
-                    <ConfirmActionDialog
-                      tooltipContent="Cancelar inscrição"
-                      onConfirm={() => deleteEnrollment(id)}
-                    >
-                      <button className="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-3 py-1.5 rounded-md transition">
-                        Cancelar
-                      </button>
-                    </ConfirmActionDialog>
-                  </EnrollmentCard.Action>
-                )}
-
-                {fromAdmin && status === "PENDING" && (
-                  <>
+            {status === "PENDING" && (
+              <EnrollmentCard.Footer className="border-t px-4 py-3 bg-gray-50">
+                <EnrollmentCard.ActionsContainer className="flex justify-end gap-2">
+                  {(!fromAdmin && status === "PENDING") && (
                     <EnrollmentCard.Action className="">
                       <ConfirmActionDialog
-                        tooltipContent="Rejeitar inscrição"
-                        onConfirm={() => rejectEnrollment(id)}
+                        tooltipContent="Cancelar inscrição"
+                        onConfirm={() => deleteEnrollment(id)}
                       >
                         <button className="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-3 py-1.5 rounded-md transition">
-                          Rejeitar
+                          Cancelar
                         </button>
                       </ConfirmActionDialog>
                     </EnrollmentCard.Action>
+                  )}
 
-                    <EnrollmentCard.Action className="">
-                      <ConfirmActionDialog
-                        tooltipContent="Aprovar inscrição"
-                        onConfirm={() => approveEnrollment(id)}
-                      >
-                        <button className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-3 py-1.5 rounded-md transition">
-                          Aprovar
-                        </button>
-                      </ConfirmActionDialog>
-                    </EnrollmentCard.Action>
-                  </>
-                )}
-              </EnrollmentCard.ActionsContainer>
-            </EnrollmentCard.Footer>
+                  {(fromAdmin && status === "PENDING") && (
+                    <>
+                      <EnrollmentCard.Action className="">
+                        <ConfirmActionDialog
+                          tooltipContent="Rejeitar inscrição"
+                          onConfirm={() => rejectEnrollment(id)}
+                        >
+                          <button className="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-3 py-1.5 rounded-md transition">
+                            Rejeitar
+                          </button>
+                        </ConfirmActionDialog>
+                      </EnrollmentCard.Action>
+
+                      <EnrollmentCard.Action className="">
+                        <ConfirmActionDialog
+                          tooltipContent="Aprovar inscrição"
+                          onConfirm={() => approveEnrollment(id)}
+                        >
+                          <button className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-3 py-1.5 rounded-md transition">
+                            Aprovar
+                          </button>
+                        </ConfirmActionDialog>
+                      </EnrollmentCard.Action>
+                    </>
+                  )}
+                </EnrollmentCard.ActionsContainer>
+              </EnrollmentCard.Footer>
+            )}
           </EnrollmentCard.Container>
         );
       })}

@@ -1,13 +1,26 @@
 import { handleGelAllCourses } from "@/api/coursesServices";
+import ScrollToTop from "@/components/ScrollToTop";
 import { CourseCard1 as CourseCard } from "@/components/ui/course";
+import { DialogHeader } from "@/components/ui/dialog";
 import {
   CreateCourseDialog,
   DeleteCourseDialog,
   EditCourseDialog,
+  RenderCourseCreatorDialog,
+  RenderCourseDescriptionDialog,
 } from "@/components/ui/Dialogs";
 import { Loader } from "@/components/ui/Loader";
 import NoContent from "@/components/ui/NoContent";
+import { useAuth } from "@/contexts/AuthContext";
+import { removeAccents } from "@/shared/functions";
+import type { IUser } from "@/types/auth";
 import type { ICourse } from "@/types/course";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
 import { FaMoneyBill, FaGift, FaIdCard, FaPhone, FaUser } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
@@ -16,6 +29,7 @@ export default function Courses() {
   const [courses, setCourses] = useState<ICourse[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [searchKey, setSearchKey] = useState<string>("");
+  const {state} = useAuth()
 
   useEffect(() => {
     getAllCourses();
@@ -46,100 +60,76 @@ export default function Courses() {
     );
 
   const RenderCourses = () => {
-    return filteredCourses.map((course) => (
-      <CourseCard.Container key={course.id}>
-        <CourseCard.Header>
-          <h1 className="text-2xl">{course.title}</h1>
-          <div className="bg-white border rounded-lg p-4 shadow-sm space-y-2 text-sm text-gray-700">
-            <div className="flex items-center gap-1">
-              <span className="font-medium text-gray-900">
-                <FaUser />
-              </span>{" "}
-              {course.createdBy?.name || (
-                <span className="italic text-gray-400">Não informado</span>
+    const maxCourseLength = 100;
+
+    return (
+      <div className="grid md:grid-cols-3 gap-2">
+        {filteredCourses.map((course) => (
+          <CourseCard.Container key={course.id}>
+            <CourseCard.Header>
+              <h1 className="text-2xl my-2">{course.title}</h1>
+              {state.user?.isSuperAdmin && <RenderCourseCreatorDialog author={course.createdBy!} />}
+              <h4 className="border-l-2 border-l-sky-700 px-2 mb-2">
+                Duração: <span>{course.duration}</span>
+              </h4>
+              <h4 className="border-l-2 border-l-sky-700 px-2 mb-2">
+                Vagas: <span>{course.vacancies}</span>
+              </h4>
+              {!course.payed && (
+                <p className="flex items-center gap-2">
+                  {" "}
+                  <i className="text-amber-600">
+                    <FaGift />
+                  </i>{" "}
+                  Gratuito
+                </p>
               )}
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="font-medium text-gray-900">
-                <MdEmail />
-              </span>{" "}
-              {course.createdBy?.email || (
-                <span className="italic text-gray-400">Não informado</span>
+              {course.payed && (
+                <p className="flex items-center gap-2">
+                  {" "}
+                  <i className="text-green-800">
+                    <FaMoneyBill />
+                  </i>{" "}
+                  {course.price} Kz
+                </p>
               )}
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="font-medium text-gray-900">
-                <FaIdCard />
-              </span>{" "}
-              {course.createdBy?.bi || (
-                <span className="italic text-gray-400">Não informado</span>
-              )}
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="font-medium text-gray-900">
-                <FaPhone />
-              </span>{" "}
-              {course.createdBy?.phoneNumber || (
-                <span className="italic text-gray-400">Não informado</span>
-              )}
-            </div>
-          </div>
-          <h4 className="border-l-2 border-l-sky-700 px-2 mb-2">
-            {course.duration}
-          </h4>
-          {!course.payed && (
-            <p className="flex items-center gap-2">
-              {" "}
-              <i className="text-amber-600">
-                <FaGift />
-              </i>{" "}
-              Gratuito
-            </p>
-          )}
-          {course.payed && (
-            <p className="flex items-center gap-2">
-              {" "}
-              <i className="text-green-800">
-                <FaMoneyBill />
-              </i>{" "}
-              {course.price} Kz
-            </p>
-          )}
-        </CourseCard.Header>
-        <CourseCard.Content>
-          <div className="flex flex-col gap-2">
-            {course.description.split("\n").map((p, i) => (
-              <p className="text-justify" key={i}>
-                {p}
+            </CourseCard.Header>
+            <CourseCard.Content>
+              <p className="text-justify mb-2">
+                {course.description.length <= maxCourseLength
+                  ? course.description
+                  : `${course.description.substring(0, maxCourseLength)}...`}
               </p>
-            ))}
-          </div>
-        </CourseCard.Content>
-        <CourseCard.Footer>
-          <div className="flex items-center gap-2">
-            <DeleteCourseDialog
-              id={course.id}
-              onReload={() => getAllCourses()}
-            />
-            <EditCourseDialog
-              id={course.id}
-              data={course}
-              onReload={() => getAllCourses()}
-            />
-          </div>
-        </CourseCard.Footer>
-      </CourseCard.Container>
-    ));
+              <RenderCourseDescriptionDialog course={course} />
+            </CourseCard.Content>
+            <CourseCard.Footer>
+              <div className="flex items-center gap-2">
+                <DeleteCourseDialog
+                  id={course.id}
+                  onReload={() => getAllCourses()}
+                />
+                <EditCourseDialog
+                  id={course.id}
+                  data={course}
+                  onReload={() => getAllCourses()}
+                />
+              </div>
+            </CourseCard.Footer>
+          </CourseCard.Container>
+        ))}
+      </div>
+    );
   };
 
   let filteredCourses: ICourse[] = searchKey
     ? courses.filter((course) =>
-        course.title.toLowerCase().includes(searchKey.toLowerCase())
+        removeAccents(course.title).toLowerCase().includes(removeAccents(searchKey).toLowerCase())
       )
     : courses;
 
   return (
     <div className="flex flex-col gap-4">
+      <ScrollToTop/>
       <div className="flex gap-2">
         <form action="">
           <input

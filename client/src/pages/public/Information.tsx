@@ -2,7 +2,6 @@ import {
   handleGetInformation,
   handleGetInformationImage,
 } from "@/api/informationsServices";
-import { InformationCard } from "@/components/ui/Cards";
 import { InfoCard } from "@/components/ui/information";
 import { Loader } from "@/components/ui/Loader";
 import NoContent from "@/components/ui/NoContent";
@@ -10,6 +9,7 @@ import { type IInformation } from "@/types/information";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import imagePath from "../../assets/images/news.jpg";
+import ScrollToTop from "@/components/ScrollToTop";
 
 export default function Information() {
   const [searchParams] = useSearchParams();
@@ -68,6 +68,7 @@ export default function Information() {
 
   return (
     <div className="min-h-screen flex justify-center p-8">
+      <ScrollToTop/>
       <InfoCard.Container className="max-w-200 border flex flex-col gap-8 justify-between border-gray-300 p-4 rounded-md shadow">
         <InfoCard.Header>
           <h1 className="text-3xl">{information.title}</h1>
