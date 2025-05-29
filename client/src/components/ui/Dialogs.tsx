@@ -2236,7 +2236,7 @@ export function DeleteAdminAccountDialog({
           </DialogTitle>
           <DialogDescription>
             Esta acção não pode ser desfeita. Isso irá eliminar permanentemente
-            a sua conta e seus dados do servidor.
+            a conta do administrador e seus dados do servidor.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex">

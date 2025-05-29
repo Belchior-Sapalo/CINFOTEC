@@ -53,7 +53,7 @@ export default function Informations() {
               </h5>
             </InfoCard.Header>
             <InfoCard.Content className="">
-              <p className="text-justify mb-2">
+              <p className="mb-2">
                 {information.body.length <= maxInfoLength
                   ? information.body
                   : `${information.body.substring(0, maxInfoLength)}...`}

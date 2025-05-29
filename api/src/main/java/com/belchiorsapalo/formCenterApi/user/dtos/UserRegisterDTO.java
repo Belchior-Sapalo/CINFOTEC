@@ -6,7 +6,9 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record UserRegisterDTO(
-        @NotNull(message = "O nome não pode ser nulo") 
+        @NotNull(message = "O nome não pode ser nulo")
+        @Pattern(regexp = "^[A-Za-zÀ-ÖØ-öø-ÿ\\s]+$", message = "Nome inválido: use apenas letras e espaços")
+        @Size(min = 2, max = 50, message = "Nome deve ter entre 2 e 50 caracteres")
         String name,
 
         @NotNull(message = "O email não pode ser nulo") 

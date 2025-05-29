@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.belchiorsapalo.formCenterApi.user.model.User;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,34 +25,29 @@ public class CourseController {
       this.courseService = courseService;
    }
 
-   //Teatsdo, sucesso
    @GetMapping
    public ResponseEntity<List<Course>> getAll() {
       return ResponseEntity.ok().body(courseService.getAll());
    }
 
-   //Teatsdo, sucesso
    @GetMapping("/{id}")
    public ResponseEntity<Course> getOne(@PathVariable UUID id) {
       return ResponseEntity.ok().body(courseService.getOne(id));
    }
 
-   //Teatsdo, sucesso
    @PostMapping()
-   public ResponseEntity<Course> register(@RequestBody CourseRegisterDTO courseRegisterDTO, @AuthenticationPrincipal User user) {
+   public ResponseEntity<Course> register(@Valid @RequestBody CourseRegisterDTO courseRegisterDTO, @AuthenticationPrincipal User user) {
       return ResponseEntity.status(HttpStatus.CREATED).body(courseService.register(courseRegisterDTO, user));
    }
 
-   //Teatsdo, sucesso
    @DeleteMapping("/{id}")
    public ResponseEntity<Object> delete(@PathVariable UUID id) {
       courseService.delete(id);
       return ResponseEntity.ok().build();
    }
 
-   //Teatsdo, sucesso
    @PatchMapping("/{id}")
-   public ResponseEntity<Course> update(@RequestBody CourseRegisterDTO courseRegisterDTO, @PathVariable UUID id){
+   public ResponseEntity<Course> update(@Valid @RequestBody CourseRegisterDTO courseRegisterDTO, @PathVariable UUID id){
       return ResponseEntity.ok().body(courseService.update(courseRegisterDTO, id));
    }
 }
