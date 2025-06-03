@@ -1,5 +1,6 @@
 package com.belchiorsapalo.formCenterApi.user.model;
 
+import java.io.Serial;
 import java.util.*;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -34,6 +35,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User implements UserDetails {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Id

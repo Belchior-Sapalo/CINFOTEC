@@ -21,6 +21,7 @@ import MyEnrollemnts from "./pages/public/Enrollments.tsx";
 import SuperProtectedRoute from "./components/SuperProtectedRoute.tsx";
 import About from "./pages/public/About.tsx";
 import Information from "./pages/public/Information.tsx";
+import ResetPassword from "./pages/public/ResetPassword.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
@@ -28,6 +29,7 @@ createRoot(document.getElementById("root")!).render(
       <Routes>
         <Route element={<DefaultLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/informacao" element={<Information />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/cursos" element={<Courses_public />} />

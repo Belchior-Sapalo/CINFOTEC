@@ -21,7 +21,7 @@ public record UserRegisterDTO(
         String bi,
 
         @NotNull(message = "O número não pode ser nulo") 
-        @Pattern(regexp = "\\d{9}", message = "O número de telefone deve possuir 9 dígitos") 
+        @Pattern(regexp = "^9\\d{8}", message = "O número de telefone deve possuir 9 dígitos e começar com 9")
         String phoneNumber,
 
         @NotNull(message = "A senha não pode ser nula") 

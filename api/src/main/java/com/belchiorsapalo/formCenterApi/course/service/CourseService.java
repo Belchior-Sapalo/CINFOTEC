@@ -74,10 +74,7 @@ public class CourseService {
    }
 
    public void delete(UUID id) {
-      Optional<Course> foundedCourse = courseRepository.findById(id);
-      if (foundedCourse.isEmpty())
-         throw new AnotherApiException("Ocorreu um erro ao eliminar curso");
-      Course courseToDelete = foundedCourse.get();
+      Course courseToDelete = courseRepository.findById(id).orElseThrow(() -> new AnotherApiException("Ocorreu um erro ao eliminar curso"));
       removeCourseFromStudents(courseToDelete);
       deleteCourseEnrollmentsFiles(courseToDelete.getEnrollments());
       courseRepository.deleteById(id);

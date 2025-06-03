@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.core.io.Resource;
@@ -48,7 +49,7 @@ public class FileService {
       DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
       String fileName = StringUtils
             .cleanPath(type + "_" + student.getName() + "_" + now.format(formatter) + "_"
-                  + file.getOriginalFilename().replace(" ", "_"));
+                  + Objects.requireNonNull(file.getOriginalFilename()).replace(" ", "_"));
 
       Path targetLocation = fileStorageLocation.resolve(fileName);
       try {
@@ -70,7 +71,7 @@ public class FileService {
       LocalDateTime now = LocalDateTime.now();
       DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
       String fileName = StringUtils
-            .cleanPath(type + "_" + now.format(formatter) + "_" + file.getOriginalFilename().replace(" ", "_"));
+            .cleanPath(type + "_" + now.format(formatter) + "_" + Objects.requireNonNull(file.getOriginalFilename()).replace(" ", "_"));
 
       Path targetLocation = fileStorageLocation.resolve(fileName);
       try {
@@ -82,8 +83,7 @@ public class FileService {
          File newFile = new File(fileName, type, fileDownloadUri, information);
          return fileRepository.save(newFile);
       } catch (IOException e) {
-         e.printStackTrace();
-         throw new AnotherApiException(e.getMessage());
+         throw new AnotherApiException("Ocorreu um erro ao fazer o upload do arquivo");
       }
 
    }
@@ -136,19 +136,6 @@ public class FileService {
       if (!resource.exists())
          throw new ResourceNotFoundException("Ocorreu um erro ao carregar informação");
       return resource;
-   }
-
-   public List<String> listFiles() throws IOException {
-      try {
-         List<String> fileNames = Files.list(fileStorageLocation)
-               .map(Path::getFileName)
-               .map(Path::toString)
-               .collect(Collectors.toList());
-
-         return fileNames;
-      } catch (IOException e) {
-         throw new AnotherApiException("Ocorreu um erro ao listar ficheiros");
-      }
    }
 
    public void delete(String fileName) throws IOException {

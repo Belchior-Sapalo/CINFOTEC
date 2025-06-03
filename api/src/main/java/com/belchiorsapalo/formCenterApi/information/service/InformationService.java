@@ -47,11 +47,7 @@ public class InformationService {
     }
 
     public void update(UUID id, InfoRegisterDTO infoRegisterDTO){
-        Optional<Information> verifyInfo = informationRepository.findById(id);
-
-        if (verifyInfo.isEmpty())
-            throw new AnotherApiException("Ocorreu um erro ao atualizar informação");
-        Information infoToUpdate = verifyInfo.get();
+       Information infoToUpdate = informationRepository.findById(id).orElseThrow(() -> new AnotherApiException("Ocorreu um erro ao atualizar informação"));
 
         if (!infoRegisterDTO.title().equalsIgnoreCase(infoToUpdate.getTitle()))
             infoToUpdate.setTitle(infoRegisterDTO.title());
@@ -67,31 +63,27 @@ public class InformationService {
     }
 
     public Information getOne(UUID id) {
-        Optional<Information> verifyInfo = informationRepository.findById(id);
-        if (verifyInfo.isEmpty())
-            throw new ResourceNotFoundException("Informação não encontrada");
-        return verifyInfo.get();
+        return informationRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Informação não encontrada")
+        );
     }
 
     public Resource getInfoImg(UUID id) throws MalformedURLException{
-        Optional<Information> infoOptional = informationRepository.findById(id);
-        if (infoOptional.isEmpty())
-            throw new AnotherApiException("Ocorreu um erro ao carregar anexo da informação");
-        String fileName = infoOptional.get().getImage().getFileName();
+        Information information = informationRepository.findById(id).orElseThrow(
+                () -> new AnotherApiException("Ocorreu um erro ao carregar anexo da informação")
+        );
+        String fileName = information.getImage().getFileName();
         return fileService.getImg(fileName);
     }
 
     public void delete(UUID id) {
-        Optional<Information> verifyInfo = informationRepository.findById(id);
-        if (verifyInfo.isEmpty())
-            throw new ResourceNotFoundException("Falha ao eliminar informação, informação não encontrada");
-        Information infoToDelete = verifyInfo.get();
+        Information information = informationRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Falha ao eliminar informação, informação não encontrada"));
         try {
-            fileService.delete(infoToDelete.getImage().getFileName());
+            fileService.delete(information.getImage().getFileName());
         } catch (IOException e) {
-            throw new AnotherApiException(e.getMessage());
+            throw new AnotherApiException("Ocorreu um erro ao eliminar informação, tente novamente mais tarde");
         }
-        informationRepository.delete(infoToDelete);
+        informationRepository.delete(information);
     }
 
 }

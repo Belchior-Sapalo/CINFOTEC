@@ -9,8 +9,8 @@ import com.belchiorsapalo.formCenterApi.user.model.User;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
     UserDetails findUserByEmail(String email);
-    User findUserByBi(String bi);
-    User findUserByPhoneNumber(String phoneNumber);
+    User findByBi(String bi);
+    User findByPhoneNumber(String phoneNumber);
     boolean existsByEmail(String email);
     boolean existsByPhoneNumber(String phoneNumber);
     boolean existsByBi(String bi);

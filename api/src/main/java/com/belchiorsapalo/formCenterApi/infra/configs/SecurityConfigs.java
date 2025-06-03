@@ -31,6 +31,8 @@ public class SecurityConfigs {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/users/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users/auth/forgot-password").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users/auth/reset-password").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users/auth/admin/register").hasRole("SUPER")
                         .requestMatchers(HttpMethod.GET, "/users/admins").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/users/students").hasRole("ADMIN")
@@ -61,8 +63,7 @@ public class SecurityConfigs {
                         .requestMatchers(HttpMethod.PATCH, "informations/{id}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "informations/{id}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "files/upload").hasRole("STUDENT")
-                        .requestMatchers(HttpMethod.GET, "files/download/{fileName:.+}").permitAll()
-                        .requestMatchers(HttpMethod.GET, "files/list").hasRole("ADMIN"))
+                        .requestMatchers(HttpMethod.GET, "files/download/{fileName:.+}").permitAll())
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

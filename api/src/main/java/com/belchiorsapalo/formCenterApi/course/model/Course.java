@@ -1,5 +1,6 @@
 package com.belchiorsapalo.formCenterApi.course.model;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -24,6 +25,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Course implements Serializable {
+   @Serial
    private static final long serialVersionUID = 1L;
 
    @Id
@@ -47,8 +49,6 @@ public class Course implements Serializable {
 
    @Column(nullable = false)
    private Integer vacancies;
-
-
 
    public Course(CourseRegisterDTO courseRegisterDTO) {
       this.title = courseRegisterDTO.title();

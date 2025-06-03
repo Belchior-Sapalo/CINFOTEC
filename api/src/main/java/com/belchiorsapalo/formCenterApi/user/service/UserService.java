@@ -91,11 +91,11 @@ public class UserService implements UserDetailsService {
     }
 
     private void utilDeleteUserFiles(User user) throws IOException {
-        user.getFiles().stream().forEach(file -> {
+        user.getFiles().forEach(file -> {
             try {
                 fileService.delete(file.getFileName());
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new AnotherApiException("Ocorreu um erro ao eliminar usuário");
             }
         });
     }
@@ -113,6 +113,8 @@ public class UserService implements UserDetailsService {
             if (!currentPassword.equals(newPassword)) {
                 userToUpdate.setPassword(bcrypt.encode(newPassword));
                 userRepository.save(userToUpdate);
+            }else{
+                throw new AnotherApiException("A nova senha nao pode ser igual a anterior");
             }
         } else {
             throw new UnauthorizedUserException("A senha actual está incorreta");
@@ -149,7 +151,7 @@ public class UserService implements UserDetailsService {
     public void updateBi(UUID id, UpdateBiDTO dto) {
         var userToUpdate = userRepository.findById(id)
                 .orElseThrow(() -> new AnotherApiException("Ocorreu um erro ao atualizar BI"));
-         User verifyUserByBi = userRepository.findUserByBi(dto.bi());
+         User verifyUserByBi = userRepository.findByBi(dto.bi());
         if (verifyUserByBi != null)
             throw new ResourceAlreadyExistsException("Este BI já existe, tente outro");
         var currentBi = userToUpdate.getBi();
@@ -163,7 +165,7 @@ public class UserService implements UserDetailsService {
     public void updatePhone(UUID id, UpdatePhoneDTO dto) {
         var userToUpdate = userRepository.findById(id)
                 .orElseThrow(() -> new AnotherApiException("Ocorreu um erro ao atualizar telefone"));
-        User verifyPhoneNumber = userRepository.findUserByPhoneNumber(dto.phoneNumber());
+        User verifyPhoneNumber = userRepository.findByPhoneNumber(dto.phoneNumber());
         if (verifyPhoneNumber != null)
             throw new ResourceAlreadyExistsException("Este número de telefone já existe, tente outro");
         var currentPhone = userToUpdate.getPhoneNumber();

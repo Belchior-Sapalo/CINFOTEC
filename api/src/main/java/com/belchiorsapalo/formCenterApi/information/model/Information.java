@@ -1,5 +1,6 @@
 package com.belchiorsapalo.formCenterApi.information.model;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.UUID;
@@ -27,6 +28,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class Information implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public Information(String title, String category, String body) {

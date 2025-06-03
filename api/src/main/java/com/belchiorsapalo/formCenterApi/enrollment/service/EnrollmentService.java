@@ -3,7 +3,6 @@ package com.belchiorsapalo.formCenterApi.enrollment.service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import com.belchiorsapalo.formCenterApi.pdf.services.PdfGeneratorService;
@@ -19,7 +18,6 @@ import com.belchiorsapalo.formCenterApi.enrollment.model.EnrollmentStatus;
 import com.belchiorsapalo.formCenterApi.enrollment.repository.EnrollmentRepository;
 import com.belchiorsapalo.formCenterApi.exceptions.AnotherApiException;
 import com.belchiorsapalo.formCenterApi.exceptions.ResourceAlreadyExistsException;
-import com.belchiorsapalo.formCenterApi.exceptions.ResourceNotFoundException;
 import com.belchiorsapalo.formCenterApi.files.service.FileService;
 import com.belchiorsapalo.formCenterApi.infra.TokenService;
 import com.belchiorsapalo.formCenterApi.user.model.User;
@@ -49,31 +47,26 @@ public class EnrollmentService {
    public Enrollment register(String token, UUID courseId, MultipartFile bi, MultipartFile certf,
          MultipartFile photo) throws IOException {
       String studentEmail = tokenService.validateToken(token);
-      var foundedStudent = (User) userRepository.findUserByEmail(studentEmail);
-      Optional<Course> foundedCourse = courseRepository.findById(courseId);
-      if (foundedCourse.isEmpty())
-            throw new AnotherApiException("Ocorreu um erro ao inscrever o usuário");
-      if (foundedCourse.get().getVacancies() <= 0) {
+      var student = (User) userRepository.findUserByEmail(studentEmail);
+      if (student == null) throw  new AnotherApiException(
+              "Ocorreu um erro ao inscrever o usuário");
+      Course course = courseRepository.findById(courseId).orElseThrow(() -> new AnotherApiException("Ocorreu um erro ao inscrever o usuário"));
+
+      if (course.getVacancies() <= 0) {
          throw new AnotherApiException("Já não existem vagas para esse curso");
       }
-      courseId = foundedCourse.get().getId();
-      Enrollment verifyEnrollment = enrollmentRepository.findEnrollmentByStudentIdAndCourseId(
-            foundedStudent.getId(), courseId);
+      Enrollment verifyEnrollment = enrollmentRepository.findByStudentIdAndCourseId(
+              student.getId(), course.getId());
 
       if (verifyEnrollment != null)
          throw new ResourceAlreadyExistsException("Já tem uma inscrição para esse curso");
+
       Enrollment createdEnrollment = new Enrollment();
-      var enrollCourse = courseRepository.findById(courseId)
-            .orElseThrow(() -> new ResourceNotFoundException(
-                  "Falha ao se inscrever, curso não encontrado"));
-      var enrollStudent = userRepository.findById(foundedStudent.getId())
-            .orElseThrow(() -> new AnotherApiException(
-                  "Ocorreu um erro ao inscrever o usuário"));
-      fileService.upload(bi, enrollStudent, createdEnrollment, "Bilhete");
-      fileService.upload(certf, enrollStudent, createdEnrollment, "Certificado");
-      fileService.upload(photo, enrollStudent, createdEnrollment, "Fotografia");
-      createdEnrollment.setCourse(enrollCourse);
-      createdEnrollment.setStudent(enrollStudent);
+      fileService.upload(bi, student, createdEnrollment, "Bilhete");
+      fileService.upload(certf, student, createdEnrollment, "Certificado");
+      fileService.upload(photo, student, createdEnrollment, "Fotografia");
+      createdEnrollment.setCourse(course);
+      createdEnrollment.setStudent(student);
       createdEnrollment.setStatus(EnrollmentStatus.PENDING);
       return enrollmentRepository.save(createdEnrollment);
    }
@@ -84,12 +77,12 @@ public class EnrollmentService {
 
    public List<Enrollment> getStudentEnrollments(UUID id){
       User foundedUser = userRepository.findById(id).orElseThrow(() -> new AnotherApiException("Usuário não encontrado"));
-      return enrollmentRepository.findEnrollmentByStudentId(foundedUser.getId());
+      return enrollmentRepository.findByStudentId(foundedUser.getId());
    }
 
    @Transactional
    public Enrollment approveEnrollment(UUID id) {
-      var enrollmentToApprove = enrollmentRepository.findById(id)
+      var enrollmentToApprove = enrollmentRepository.findByIdAndStatus(id, EnrollmentStatus.PENDING)
             .orElseThrow(() -> new AnotherApiException(
                   "Ocorreu um erro ao aprovar inscrição"));
       processEnrollment(enrollmentToApprove);
@@ -119,12 +112,12 @@ public class EnrollmentService {
    }
 
    public Enrollment rejectEnrollment(UUID id) {
-      var enrollmentToReject = enrollmentRepository.findById(id)
+      var enrollment = enrollmentRepository.findByIdAndStatus(id, EnrollmentStatus.PENDING)
             .orElseThrow(() -> new AnotherApiException(
                   "Ocorreu um erro ao rejeitar a inscrição"));
-      enrollmentToReject.setStatus(EnrollmentStatus.REJECTED);
-      enrollmentToReject.setProcessedAt(LocalDateTime.now());
-      return enrollmentRepository.save(enrollmentToReject);
+      enrollment.setStatus(EnrollmentStatus.REJECTED);
+      enrollment.setProcessedAt(LocalDateTime.now());
+      return enrollmentRepository.save(enrollment);
    }
 
    public byte[] generateProof(UUID id){
@@ -139,22 +132,23 @@ public class EnrollmentService {
       var enrollmentToDelete = enrollmentRepository.findById(id)
             .orElseThrow(() -> new AnotherApiException(
                   "Ocorreu um erro ao eliminar a inscrição"));
-      utilDeleteEnrollmentFiles(enrollmentToDelete);
-      utilUpdateUserAndCourseTableDuringDeletingEnrollment(enrollmentToDelete);
+      deleteEnrollmentFiles(enrollmentToDelete);
+      processEnrollmentDeletion(enrollmentToDelete);
       enrollmentRepository.deleteById(id);
    }
 
-   private void utilDeleteEnrollmentFiles(Enrollment enrollment) throws IOException {
-      enrollment.getFiles().stream().forEach(file -> {
+   private void deleteEnrollmentFiles(Enrollment enrollment) throws IOException {
+      enrollment.getFiles().forEach(file -> {
          try {
             fileService.delete(file.getFileName());
          } catch (IOException e) {
-            e.printStackTrace();
+            throw new AnotherApiException(
+                    "Ocorreu um erro ao eliminar a inscrição");
          }
       });
    }
 
-   private void utilUpdateUserAndCourseTableDuringDeletingEnrollment(Enrollment enrollmentToDelete) {
+   private void processEnrollmentDeletion(Enrollment enrollmentToDelete) {
       var enrollCourse = courseRepository.findById(enrollmentToDelete.getCourse().getId())
             .orElseThrow(() -> new AnotherApiException(
                   "Ocorreu um erro ao eliminar a inscrição"));

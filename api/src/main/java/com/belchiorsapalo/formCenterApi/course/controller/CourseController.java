@@ -35,7 +35,7 @@ public class CourseController {
       return ResponseEntity.ok().body(courseService.getOne(id));
    }
 
-   @PostMapping()
+   @PostMapping
    public ResponseEntity<Course> register(@Valid @RequestBody CourseRegisterDTO courseRegisterDTO, @AuthenticationPrincipal User user) {
       return ResponseEntity.status(HttpStatus.CREATED).body(courseService.register(courseRegisterDTO, user));
    }

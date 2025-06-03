@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
 import { FaIdCard, FaPhone, FaUser } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
+import { DownloadEnrollmentProofButton } from "./ui/Buttons";
 
 export function RenderEnrollments({
   enrollments,
@@ -261,16 +262,7 @@ export function RenderEnrollments({
               <EnrollmentCard.Footer className="border-t px-4 py-3 bg-gray-50">
                 <EnrollmentCard.ActionsContainer className="flex justify-end gap-2">
                   <EnrollmentCard.Action className="">
-                    <button
-                      onClick={() => getEnrollentProof(enrollment.id)}
-                      className={`${
-                        loading
-                          ? "bg-gray-300 text-gray-500 font-bold py-1 px-4 rounded cursor-not-allowed"
-                          : "bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-3 py-1.5 rounded-md transition cursor-pointer"
-                      }`}
-                    >
-                      {loading ? "Baixando..." : "Baixar comprovativo"}
-                    </button>
+                    <DownloadEnrollmentProofButton id={enrollment.id}/>
                   </EnrollmentCard.Action>
                 </EnrollmentCard.ActionsContainer>
               </EnrollmentCard.Footer>

@@ -27,9 +27,4 @@ public class FileController {
          throws IOException {
       return fileService.download(fileName, request);
    }
-
-   @GetMapping("/list")
-   public ResponseEntity<List<String>> listFiles() throws IOException {
-      return ResponseEntity.ok().body(fileService.listFiles());
-   }
 }

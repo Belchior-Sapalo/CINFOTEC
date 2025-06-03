@@ -58,7 +58,7 @@ import {
 import { MdEmail, MdMail, MdPassword } from "react-icons/md";
 import { SubmitButton } from "./Buttons";
 import type { IRegister, IUser } from "@/types/auth";
-import { handleRegisterAdmin } from "@/api/authServices";
+import { handleForgotPassword, handleRegisterAdmin } from "@/api/authServices";
 import FileViewer from "../FileViewer";
 import Information from "@/pages/public/Information";
 
@@ -2307,14 +2307,14 @@ export const ViewFileDialog: React.FC<ViewFileDialogProps> = ({
 };
 
 export function RecoverPasswordDialog() {
-  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  async function updateName() {
-    if (!name) {
-      setError("O nome não pode ser vazio");
+  async function forgotPassword() {
+    if (!email) {
+      setError("O email não pode ser vazio");
       setSuccess(null);
       setTimeout(() => {
         setError(null);
@@ -2323,9 +2323,9 @@ export function RecoverPasswordDialog() {
       return;
     }
     setLoading(true);
-    await handleUpdateName({ name: name.trimEnd().trimStart() })
+    await handleForgotPassword({ email: email.trimEnd().trimStart() })
       .then((res) => {
-        setSuccess("Nome atualizado com sucesso");
+        setSuccess("Se o e-mail fornecido estiver cadastrado, você receberá instruções para redefinir a senha.");
         setError(null);
       })
       .catch((err) => {
@@ -2334,7 +2334,7 @@ export function RecoverPasswordDialog() {
           setError(err.response.data.message);
           setSuccess(null);
         } else {
-          setError("Erro ao atualizar nome");
+          setError("Ocorreu um erro, tente novamente mais tarde");
           setSuccess(null);
         }
       })
@@ -2362,7 +2362,7 @@ export function RecoverPasswordDialog() {
       <DialogContent className="sm:max-w-[425px]">
         <div className="mt-8">
           {error && (
-            <div className="bg-red-500 text-white p-2 rounded mb-4">
+            <div className="bg-green-500 text-white p-2 rounded mb-4">
               {error}
             </div>
           )}
@@ -2374,9 +2374,6 @@ export function RecoverPasswordDialog() {
         </div>
         <DialogHeader>
           <DialogTitle>Recuperar senha</DialogTitle>
-          <DialogDescription>
-            Insira o seu email e lhe enviaremos um email se existir!
-          </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
@@ -2386,8 +2383,8 @@ export function RecoverPasswordDialog() {
             <input
               type="email"
               id="email"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="col-span-3 outline-none p-2 rounded border border-gray-400 focus:border-gray-600"
               placeholder="Insira seu email"
             />
@@ -2395,8 +2392,8 @@ export function RecoverPasswordDialog() {
         </div>
         <DialogFooter className="flex">
           <button
-            onClick={() => updateName()}
-            className="bg-sky-700 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-800"
+            onClick={() => forgotPassword()}
+            className={`${loading ? "bg-gray-300 rounded p-2 text-gray-500 cursor-not-allowed" : "bg-sky-700 text-white rounded p-2 cursor-pointer self-start hover:bg-sky-800"}`}
           >
             {loading ? "Aguarde..." : "Enviar"}
           </button>
